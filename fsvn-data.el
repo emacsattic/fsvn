@@ -348,7 +348,7 @@ This list sorted revision descending.
        (mapc
         (lambda (x)
           (setq ret (cons (cons x nil) ret)))
-        (eval var)))
+        (symbol-value var)))
      (cons 'fsvn-const-property-list fsvn-common-property-list))
     (when (and (fsvn-url-local-p file)
                (setq root (fsvn-get-root file))

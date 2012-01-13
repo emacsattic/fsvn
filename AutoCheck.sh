@@ -79,6 +79,7 @@ EMACS_BIN=emacs
 # WIN_SVN_1_4_BIN="c:/usr/local/subversion-dev/svn-win32-1.4.6/bin"
 # WIN_SVN_1_5_BIN="c:/usr/local/subversion-dev/svn-win32-1.5.6/bin"
 WIN_SVN_1_6_BIN="c:/usr/local/subversion-dev/svn-win32-1.6.6/bin"
+WIN_SVN_1_7_BIN="c:/usr/local/subversion-dev/svn-win32-1.7.1/bin"
 MEADOW3_BIN="/cygdrive/c/usr/local/Meadow-dev/bin/Meadow.exe"
 NTEMACS22_BIN="/cygdrive/c/usr/local/NTEmacs/22.2/bin/emacs.exe"
 NTEMACS23_BIN="/cygdrive/c/usr/local/NTEmacs/23.1/bin/emacs.exe"

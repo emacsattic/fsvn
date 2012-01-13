@@ -1,3 +1,11 @@
+2012-01-13  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: `diff' return window when trunk emacs.
+
+2012-01-07  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: eval -> symbol-value
+
 2012-01-07  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Release: 0.9.13

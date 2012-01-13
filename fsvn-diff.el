@@ -157,7 +157,13 @@
            (fsvn-ediff-directories ,dir1 ,dir2))))))
 
 (defun fsvn-diff-files (file1 file2 switches)
-  (let ((buffer (diff file1 file2 switches)))
+  (let* ((win-or-buf (diff file1 file2 switches))
+         (buffer
+          (cond
+           ((windowp win-or-buf)
+            (window-buffer win-or-buf))
+           (t
+            win-or-buf))))
     (fsvn-diff-setup-mode buffer (list file1 file2 switches))))
 
 ;; subcommand `diff' utility

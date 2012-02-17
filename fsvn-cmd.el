@@ -79,15 +79,13 @@
 (defun fsvn-get-svn:ignore-as-list (directory)
   "get `svn:ignore' property as list."
   (with-temp-buffer
-    (let (args)
-      (setq args (list "svn:ignore" directory))
+    (let ((args (list "svn:ignore" directory)))
       (when (= (apply 'fsvn-call-command "propget" t args) 0)
         (fsvn-text-buffer-line-as-list)))))
 
 (defun fsvn-get-ls (urlrev)
   (with-temp-buffer
-    (let (args)
-      (setq args (list urlrev "--xml"))
+    (let ((args (list urlrev "--xml")))
       (when (= (apply 'fsvn-call-command "list" t args) 0)
         (fsvn-xml-parse-lists-entries)))))
 

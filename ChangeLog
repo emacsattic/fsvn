@@ -1,3 +1,11 @@
+2012-02-13  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: `fsvn-ediff-cleanup-file-history' destroy history.
+
+2012-02-12  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Add: `fsvn-process-list-send-string-selected'
+
 2012-01-13  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: `diff' return window when trunk emacs.

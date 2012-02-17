@@ -54,7 +54,7 @@
   (setq file-name-history
         (fsvn-mapitem
          (lambda (x)
-           (and (fsvn-url-descendant-p (fsvn-ediff-directory) (expand-file-name x))
+           (and (not (fsvn-url-descendant-p (fsvn-ediff-directory) (expand-file-name x)))
                 x))
          file-name-history)))
 

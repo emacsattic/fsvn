@@ -719,9 +719,8 @@ from is marked point, to is current point."
      (list url (cons from to)))))
 
 (defun fsvn-logview-cmd-read-ediff-local ()
-  (let (local-file args)
-    (setq local-file (fsvn-read-file-name "File: "))
-    (setq args (fsvn-cmd-read-subcommand-args "diff" fsvn-default-args-diff))
+  (let ((local-file (fsvn-read-file-name "File: "))
+        (args (fsvn-cmd-read-subcommand-args "diff" fsvn-default-args-diff)))
     (list local-file args)))
 
 (defun fsvn-log-list-read-search-regexp ()

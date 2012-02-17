@@ -82,6 +82,7 @@
           (define-key map "\C-c\C-c" 'fsvn-process-list-mark-execute)
           (define-key map "\C-c\C-k" 'fsvn-process-list-quit)
           (define-key map "\C-c\C-p" 'fsvn-process-list-send-password-selected)
+          (define-key map "\C-c\C-s" 'fsvn-process-list-send-string-selected)
           (define-key map "\C-c\C-q" 'fsvn-process-list-quit)
           (define-key map "\C-m" 'fsvn-process-list-show-buffer)
           (define-key map "\C-n" 'fsvn-process-list-next-process)
@@ -406,7 +407,20 @@ Keybindings:
           (recenter))))
     (setq fsvn-process-list-showing-process process)))
 
+(defun fsvn-process-list-send-string-selected (processes string)
+  "Send STRING to selected PROCESSES with last newline."
+  (interactive (let ((procs (fsvn-process-list-gather-marked-processes)))
+                 (unless procs
+                   (error "No process was selected"))
+                 (list procs (read-string "String to send: "))))
+  (mapc
+   (lambda (p)
+     (when (eq (process-status p) 'run)
+       (process-send-string p (concat string "\n"))))
+   processes))
+
 (defun fsvn-process-list-send-password-selected (processes password)
+  "Send PASSWORD to selected PROCESSES with last newline."
   (interactive (let ((procs (fsvn-process-list-gather-marked-processes)))
                  (unless procs
                    (error "No process was selected"))
@@ -455,6 +469,7 @@ Keybindings:
      ["Put Mark" fsvn-process-list-put-mark t]
      )
     ("Misc"
+     ["Send String to Marked" fsvn-process-list-send-string-selected t]
      ["Send Password to Marked" fsvn-process-list-send-password-selected t]
      ["Show Process Buffer" fsvn-process-list-show-buffer t]
      ["Toggle Visibility All Processes" fsvn-process-list-toggle-show-all t]

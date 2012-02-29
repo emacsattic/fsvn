@@ -1,3 +1,12 @@
+2012-02-29  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Add: `fsvn-process-list-default-display-function' that controls
+		default behavior of process list
+
+2012-02-28  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Improve: Add advice `dired-get-filename' to handle fsvn feature.
+
 2012-02-13  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: `fsvn-ediff-cleanup-file-history' destroy history.

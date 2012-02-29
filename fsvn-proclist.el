@@ -31,10 +31,13 @@
 (defvar fsvn-process-list-process-alist nil)
 (defvar fsvn-process-list-showing-process nil)
 (defvar fsvn-process-list-processes nil)
-(defvar fsvn-process-list-display-p-function 'fsvn-process-list-default-display-p)
+(defvar fsvn-process-list-display-p-function
+  'fsvn-process-list-default-display-p)
 (defvar fsvn-process-list-timer nil)
 (defvar fsvn-process-list-timer-interval 1
   "Seconds of updating buffer interval.")
+(defvar fsvn-process-list-default-display-function
+  'fsvn-process-list-default-display-p)
 
 (defconst fsvn-process-list-column-alist
   '(
@@ -174,7 +177,9 @@ Keybindings:
           (fsvn-header-tail-fill-line))
         (mapc
          (lambda (p)
-           (when (funcall fsvn-process-list-display-p-function p)
+           (when (or (eq fsvn-process-list-display-p-function t)
+                     (and fsvn-process-list-display-p-function
+                          (funcall fsvn-process-list-display-p-function p)))
              (fsvn-process-list-insert-process p)
              (setq processes (cons p processes))))
          (fsvn-union (process-list) fsvn-process-list-processes 'memq)))
@@ -323,9 +328,14 @@ Keybindings:
 
 
 (defun fsvn-process-list ()
+  "Show processes under the emacs.
+
+You can send string these processes or kill process or etc...
+"
   (interactive)
   (let ((win-configure (current-window-configuration)))
-    (setq fsvn-process-list-display-p-function 'fsvn-process-list-default-display-p)
+    (setq fsvn-process-list-display-p-function
+          fsvn-process-list-default-display-function)
     (fsvn-process-list-draw-list)
     (let ((buffer (fsvn-process-list-get-buffer)))
       (switch-to-buffer buffer)
@@ -333,11 +343,13 @@ Keybindings:
       (fsvn-process-list-goto-first))))
 
 (defun fsvn-process-list-toggle-show-all ()
+  "Toggle showing processes that is not a fsvn feature."
   (interactive)
   (setq fsvn-process-list-display-p-function
-        (if (eq fsvn-process-list-display-p-function 'fsvn-process-list-default-display-p)
-            (lambda (p) t)
-          'fsvn-process-list-default-display-p))
+        (if (eq fsvn-process-list-display-p-function t)
+            'fsvn-process-list-default-display-p
+          ;; show all
+          t))
   (fsvn-process-list-draw-list))
 
 (defun fsvn-process-list-quit ()

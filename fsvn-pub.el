@@ -37,6 +37,7 @@
 (defconst fsvn-advised-alist
   '((dired around fsvn-dired-mode)
     (dired-goto-file around fsvn-dired-goto-file-ad)
+    (dired-get-filename around fsvn-dired-get-filename-ad)
     (after-find-file around fsvn-after-find-file)
     (vc-find-file-hook after fsvn-ui-fancy-vc-find-file-hook)
     (vc-after-save after fsvn-ui-fancy-vc-after-save)

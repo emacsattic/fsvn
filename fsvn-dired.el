@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -51,7 +51,7 @@ This function suppress this behavior."
     (setq fsvn-dired-force-dired nil)))
 
 (defmacro fsvn-dired-switch-by-major-mode (dired-form fsvn-form)
-  `(cond 
+  `(cond
      ((eq major-mode 'dired-mode)
       ,dired-form)
      ((eq major-mode 'fsvn-browse-mode)
@@ -145,7 +145,7 @@ This function suppress this behavior."
    (fsvn-dired-pseudo-get-marked-files localp arg filter distinguish-one-marked)))
 
 (defun fsvn-dired-add-file (file &optional marker-char)
-  (fsvn-dired-switch-by-major-mode 
+  (fsvn-dired-switch-by-major-mode
    (condition-case nil
        ;;FIXME when tramp like remote directory makes error in `dired-move-to-end-of-filename'
        (dired-add-file (expand-file-name file) marker-char)
@@ -342,7 +342,7 @@ See `fsvn-dired-copy-filename-as-kill' but kills full path."
          (dir (fsvn-browse-current-path))
          (string (mapconcat (lambda (file)
                               (let (name)
-                                (setq name 
+                                (setq name
                                       (if (fsvn-file= file dir)
                                           "."
                                         (fsvn-file-name-nondirectory file)))
@@ -436,6 +436,15 @@ See `fsvn-dired-copy-filename-as-kill' but kills full path."
   (if (eq major-mode 'fsvn-browse-mode)
       (fsvn-browse-goto-file file)
     ad-do-it))
+
+(defadvice dired-get-filename
+  (around fsvn-dired-get-filename-ad
+          (&optional localp no-error-if-not-filep) disable)
+  (setq ad-return-value
+        (if (eq major-mode 'fsvn-browse-mode)
+            (fsvn-dired-pseudo-get-filename
+             localp no-error-if-not-filep)
+          ad-do-it)))
 
 (fsvn-dired-define-key "\C-c\C-d" 'fsvn-dired-toggle-browser)
 

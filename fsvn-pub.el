@@ -387,6 +387,9 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
         (setq file-handler (cons fsvn-magic-file-name-regexp 'fsvn-magic-file-name-handler))
         (add-to-list 'file-name-handler-alist file-handler))
       (add-hook 'pre-command-hook 'fsvn-magic-clear-cache-if-toplevel)
+      ;; redraw mode-line `kill-all-local-varable' destroy after `vc-find-file'
+      ;; advice
+      (add-hook 'after-change-major-mode-hook 'fsvn-ui-fancy-redraw)
       ;; iswitchb ignore buffers
       (mapc
        (lambda (regexp)
@@ -398,6 +401,7 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
       (setq find-directory-functions (delq 'fsvn-browse/dired-noselect find-directory-functions))
       (setq file-name-handler-alist (delq file-handler file-name-handler-alist))
       (remove-hook 'pre-command-hook 'fsvn-magic-clear-cache-if-toplevel)
+      (remove-hook 'after-change-major-mode-hook 'fsvn-ui-fancy-redraw)
       (mapc
        (lambda (regexp)
          (setq iswitchb-buffer-ignore (delete regexp iswitchb-buffer-ignore)))

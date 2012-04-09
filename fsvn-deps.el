@@ -234,7 +234,7 @@ Please call `fsvn-initialize-loading' function.
            (setq version (match-string 1 raw-version)))
          (setq fsvn-svn-version (or version raw-version))
          (when (version<= fsvn-svn-version  "1.4")
-           (error "Svn command must be 1.4.x or later")))))))
+           (error "Svn command must be 1.5.x or later")))))))
 
 (defun fsvn-build-subcommand (&optional force)
   (mapc

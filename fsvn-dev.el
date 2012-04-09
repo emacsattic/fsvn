@@ -118,25 +118,35 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
   (interactive 
    (list (fsvn-log-list-read-search-regexp)))
   (catch 'found
-    (while (and (fsvn-log-list-point-revision)
-                (not (eobp)))
-      (let* ((buffers (buffer-list))
-             (proc (fsvn-log-list-diff-previous))
-             (buffer (process-buffer proc)))
-        (while (not (memq (process-status proc) '(exit signal)))
-          (sit-for 0.2))
-        ;;TOOD restrict to "^[+-]" ?
-        ;;TODO log message too? sibling filename too?
-        (when (buffer-live-p buffer)
-          (with-current-buffer buffer
-            (goto-char (point-min))
-            (when (re-search-forward regexp nil t)
-              ;;TODO colorlize?
-              (message "Match found.")
-              (throw 'found t)))
-          (unless (memq buffer buffers)
-            (kill-buffer buffer)))
-        (fsvn-log-list-next-line)))
+    (let (rev)
+      (while (and (setq rev (fsvn-log-list-point-revision))
+                  (not (eobp)))
+        (message "Searching revision %s..." rev)        
+        (let* ((buffers (buffer-list))
+               (proc (fsvn-log-list-diff-previous))
+               (buffer (process-buffer proc)))
+          (while (not (memq (process-status proc) '(exit signal)))
+            (sit-for 0.2))
+          ;;TOOD restrict to "^[+-]" ?
+          ;;TODO log message too? sibling filename too?
+          (when (buffer-live-p buffer)
+            (save-selected-window
+              (select-window (get-buffer-window buffer))
+              (goto-char (point-min))
+              (when (re-search-forward regexp nil t)
+                ;; colorize
+                (let ((ov (make-overlay (match-beginning 0) (match-end 0))))
+                  (overlay-put ov 'face fsvn-match-face))
+                (message "Match found.")
+                ;;TODO delete overlay?
+                ;; (let ((next-event
+                ;;        (let ((inhibit-quit t))
+                ;;          (read-event))))
+                ;;   (setq unread-command-events (list next-event)))
+                (throw 'found t)))
+            (unless (memq buffer buffers)
+              (kill-buffer buffer)))
+          (fsvn-log-list-next-line))))
     (message "Not found.")))
 
 

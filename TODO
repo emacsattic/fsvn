@@ -73,6 +73,11 @@ new minor mode commit when save-buffer
 fix DOC/*
 fix INSTALL
 
+** marmalade package
+
+how to ignore compiling fsvn-win.el in linux.
+ignore fsvn-dev.el (?)
+
 * magic
 ** `fsvn-magic-directory-files' accept svn:externals
 

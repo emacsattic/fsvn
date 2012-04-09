@@ -1,3 +1,11 @@
+2012-03-19  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: fancy redraw (ex: mm-mode)
+
+2012-03-03  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Add: new face `fsvn-match-face' (Not used yet)
+
 2012-02-29  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Add: `fsvn-process-list-default-display-function' that controls

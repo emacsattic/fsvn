@@ -10,7 +10,7 @@
 ;; requires extended emacs-wiki-mode that have not been published.
 
 (defvar fsvn-publish-doc-directory
-  "~/.emacs.d/util/fsvn/DOC")
+  "~/.emacs.d/dev/fsvn/DOC")
 
 (defconst fsvn-publish-template-directory
   (expand-file-name "Templates" fsvn-publish-doc-directory))

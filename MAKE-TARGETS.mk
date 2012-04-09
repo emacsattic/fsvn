@@ -12,6 +12,7 @@ RELEASE_FILES = \
 	mw32cmp.el mw32cmp-test.el Makefile \
 	MAKE-CFG.el MAKE-TARGETS.mk BUG INSTALL README TODO ChangeLog
 
+PACKAGE = fsvn
 
 RELEASE_SAMPLES = \
 	Samples/Makefile* Samples/MAKE-CFG.el*
@@ -47,36 +48,36 @@ clean:
 	-$(RM) $(GOMI)
 
 release: archive single-file package
-	$(RM) -f $(ARCHIVE_DIR_PREFIX)/fsvn-$(VERSION).tar.bz2 $(ARCHIVE_DIR_PREFIX)/fsvn-$(VERSION).tar.gz
+	$(RM) -f $(ARCHIVE_DIR_PREFIX)/$(PACKAGE)-$(VERSION).tar.bz2 $(ARCHIVE_DIR_PREFIX)/$(PACKAGE)-$(VERSION).tar.gz
 	$(RM) -f $(ARCHIVE_DIR_PREFIX)/fsvn.el
 	$(RM) -f $(ARCHIVE_DIR_PREFIX)/fsvn.el.bz2
 	$(RM) -f $(ARCHIVE_DIR_PREFIX)/fsvn.el.gz
-	mv /tmp/fsvn-$(VERSION).tar.bz2 /tmp/fsvn-$(VERSION).tar.gz /tmp/fsvn-$(VERSION).tar $(ARCHIVE_DIR_PREFIX)/
+	mv /tmp/$(PACKAGE)-$(VERSION).tar.bz2 /tmp/$(PACKAGE)-$(VERSION).tar.gz /tmp/$(PACKAGE)-$(VERSION).tar $(ARCHIVE_DIR_PREFIX)/
 	mv fsvn.el.tmp $(ARCHIVE_DIR_PREFIX)/fsvn.el
 	bzip2 --keep $(ARCHIVE_DIR_PREFIX)/fsvn.el
 	gzip $(ARCHIVE_DIR_PREFIX)/fsvn.el
 
 archive: prepare
 	cd /tmp ; \
-	tar cjf fsvn-$(VERSION).tar.bz2 fsvn-$(VERSION) ; \
-	tar czf fsvn-$(VERSION).tar.gz fsvn-$(VERSION)
+	tar cjf $(PACKAGE)-$(VERSION).tar.bz2 $(PACKAGE)-$(VERSION) ; \
+	tar czf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
 
 package: prepare
-	cd /tmp/fsvn-$(VERSION) ; \
+	cd /tmp/$(PACKAGE)-$(VERSION) ; \
 	rm -rf $(EXCLUDE_RELEASE) ; \
 	cd .. ; \
-	tar cf fsvn-$(VERSION).tar fsvn-$(VERSION)
+	tar cf $(PACKAGE)-$(VERSION).tar $(PACKAGE)-$(VERSION)
 
 prepare:
-	rm -rf /tmp/fsvn-$(VERSION)
-	mkdir /tmp/fsvn-$(VERSION)
-	cp -pr $(RELEASE_FILES) /tmp/fsvn-$(VERSION)
-	chmod 644 /tmp/fsvn-$(VERSION)/*
-	mkdir /tmp/fsvn-$(VERSION)/Samples
-	cp -p $(RELEASE_SAMPLES) /tmp/fsvn-$(VERSION)/Samples
-	mkdir /tmp/fsvn-$(VERSION)/images
-	cp -p $(RELEASE_IMAGES) /tmp/fsvn-$(VERSION)/images
-	chmod 744 /tmp/fsvn-$(VERSION)/Samples
+	rm -rf /tmp/$(PACKAGE)-$(VERSION)
+	mkdir /tmp/$(PACKAGE)-$(VERSION)
+	cp -pr $(RELEASE_FILES) /tmp/$(PACKAGE)-$(VERSION)
+	chmod 644 /tmp/$(PACKAGE)-$(VERSION)/*
+	mkdir /tmp/$(PACKAGE)-$(VERSION)/Samples
+	cp -p $(RELEASE_SAMPLES) /tmp/$(PACKAGE)-$(VERSION)/Samples
+	mkdir /tmp/$(PACKAGE)-$(VERSION)/images
+	cp -p $(RELEASE_IMAGES) /tmp/$(PACKAGE)-$(VERSION)/images
+	chmod 744 /tmp/$(PACKAGE)-$(VERSION)/Samples
 
 single-file:
 	$(EMACS) $(FLAGS) -f make-fsvn $(CONFIG)

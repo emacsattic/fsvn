@@ -139,6 +139,15 @@ This is what the do-commands look for, and what the mark-commands store.")
 (defvar fsvn-link-face 'fsvn-link-face
   "Face used for any link.")
 
+(defface fsvn-match-face
+  '((t :inherit match))
+  "Face used for match searching text."
+  :group 'fsvn-faces
+  :version "22.1")
+
+(defvar fsvn-match-face 'fsvn-match-face
+  "Face used for match searching text.")
+
 (defface fsvn-diff-add-face
   '((((class color) (background light))
      :foreground "blue1")

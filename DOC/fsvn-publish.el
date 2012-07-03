@@ -3,7 +3,7 @@
 
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -70,13 +70,13 @@
   (let ((lang (fsvn-publish-content-lang html)))
     (with-temp-buffer
       (insert-file-contents html)
-      (fsvn-publish-replace-in-buffer 
+      (fsvn-publish-replace-in-buffer
        "[ \t]*<meta name=\"Content-Language\" content=\"\\(\\)\""
        1 lang)
-      (fsvn-publish-replace-in-buffer 
+      (fsvn-publish-replace-in-buffer
        "[ \t]*<html lang=\"\\(\\)\""
        1 lang)
-      (fsvn-publish-replace-in-buffer 
+      (fsvn-publish-replace-in-buffer
        "^[ \t]*Published: TODO"
        0 (format "Published: %s" (format-time-string "%Y-%m-%d %H:%M")))
       (write-region (point-min) (point-max) html nil 'no-msg))))

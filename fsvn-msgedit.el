@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -108,8 +108,8 @@ Keybindings:
       (delete-region (car region) (cdr region)))))
 
 (defun fsvn-message-edit-repeated-command-p ()
-  (memq last-command 
-        '(fsvn-message-edit-previous-message 
+  (memq last-command
+        '(fsvn-message-edit-previous-message
           fsvn-message-edit-next-message
           fsvn-message-edit-re-search-message-backward
           fsvn-message-edit-re-search-message-forward)))

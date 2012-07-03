@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -39,7 +39,7 @@
 If are problems while executing this command, check `exec-path' or PATH environment variable.
 Otherwise set absolute path.
 
-After change this variable, will not take effect immediately. 
+After change this variable, will not take effect immediately.
 Please call `fsvn-initialize-loading' function.
 "
   :group 'fsvn
@@ -52,7 +52,7 @@ Please call `fsvn-initialize-loading' function.
 If are problems while executing this command, check `exec-path' or PATH environment variable.
 Otherwise set absolute path.
 
-After change this variable, will not take effect immediately. 
+After change this variable, will not take effect immediately.
 Please call `fsvn-initialize-loading' function.
 "
   :group 'fsvn
@@ -192,7 +192,7 @@ Please call `fsvn-initialize-loading' function.
     (let* ((info (fsvn-get-info-entry file))
            (checksum (fsvn-xml-info->entry=>wc-info=>checksum$ info))
            (root (fsvn-xml-info->entry=>wc-info=>wcroot-abspath$ info)))
-      (expand-file-name 
+      (expand-file-name
        (concat "pristine/" (substring checksum 0 2) "/" checksum ".svn-base")
        (expand-file-name (fsvn-meta-dir-name) root)))))
 

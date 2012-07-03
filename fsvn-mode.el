@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -375,7 +375,7 @@ Optional prefix ARG says how many lines to move; default is one line."
   "Goto DIR in current buffer and return non-nil value if DIR is found.
 "
   (let ((buffer (fsvn-local-directory-buffer dir)))
-    ;;BUG cannot keep point 
+    ;;BUG cannot keep point
     (when buffer
       (set-buffer buffer)
       (fsvn-browse-goto-directory dir))))
@@ -385,7 +385,7 @@ Optional prefix ARG says how many lines to move; default is one line."
 "
   (let ((dir (fsvn-file-name-directory file))
         buffer)
-    ;;BUG cannot keep point 
+    ;;BUG cannot keep point
     (when (setq buffer (fsvn-get-exists-browse-buffer dir))
       (set-buffer buffer)
       (fsvn-browse-goto-file file))))

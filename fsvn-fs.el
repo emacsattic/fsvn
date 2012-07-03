@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -43,6 +43,10 @@
       (delete-file directory)
     (delete-directory directory))
   nil)
+
+(defun fsvn-erase-file (file)
+  (let ((delete-by-moving-to-trash nil))
+    (delete-file file)))
 
 (defun fsvn-copy-directory (source destination &optional ignore-dot-svn)
   "Copy SOURCE directory to DESTINATION.

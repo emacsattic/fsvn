@@ -1,3 +1,7 @@
+2012-04-04  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Note: remove trailing spaces
+
 2012-03-19  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: fancy redraw (ex: mm-mode)

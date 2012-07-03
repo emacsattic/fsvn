@@ -1,10 +1,10 @@
 ;;; fsvn-dev.el --- Experimental implementation.
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -24,7 +24,7 @@
 ;;     fill empty date.
 (defun fsvn-log-analyze (key-format disp-format)
   (interactive
-   (let ((setting (assoc 
+   (let ((setting (assoc
                    (completing-read "Analyze type: " fsvn-log-analyze-alist)
                    fsvn-log-analyze-alist)))
      (list (nth 1 setting) (nth 2 setting))))
@@ -43,7 +43,7 @@
          ;; update count cell
          (setcar (nthcdr 2 cell) (incf (nth 2 cell)))))
      fsvn-log-list-entries)
-    (chart-bar-quickie 
+    (chart-bar-quickie
      'vertical "Fsvn Log Analyze"
      (mapcar (lambda (x) (nth 1 x)) alist) "Date"
      (mapcar (lambda (x) (nth 2 x)) alist) "Commit Count"
@@ -83,7 +83,7 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 (defun fsvn-browse-cmd-read-diff-between-repository ()
   (let ((default (fsvn-browse-point-repository-urlrev))
         urlrev1 urlrev2 args)
-    (fsvn-brief-message-showing 
+    (fsvn-brief-message-showing
      (setq urlrev1 (fsvn-completing-read-urlrev "URL1: " default t))
      (fsvn-brief-message-add-message (format "URL1: %s" urlrev1))
      (setq urlrev2 (fsvn-completing-read-urlrev "URL2: " urlrev1 t))
@@ -115,13 +115,13 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 ;;TODO make async
 ;; cleanup buffer
 (defun fsvn-log-list-diff-search-backward (regexp)
-  (interactive 
+  (interactive
    (list (fsvn-log-list-read-search-regexp)))
   (catch 'found
     (let (rev)
       (while (and (setq rev (fsvn-log-list-point-revision))
                   (not (eobp)))
-        (message "Searching revision %s..." rev)        
+        (message "Searching revision %s..." rev)
         (let* ((buffers (buffer-list))
                (proc (fsvn-log-list-diff-previous))
                (buffer (process-buffer proc)))
@@ -247,8 +247,8 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
   )
 
 (defun fsvn-stash-pop-read-time (directory)
-  (let ((times (mapcar 
-                (lambda (tm) 
+  (let ((times (mapcar
+                (lambda (tm)
                   (cons (format-time-string "%Y-%m-%d %H:%M:%S" tm) nil))
                 (fsvn-stash-pop-directory-times directory))))
     (completing-read "TODO: " times)))
@@ -276,12 +276,12 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
     (fsvn-copy-directory directory (car stashdirs))))
 
 (defun fsvn-stash-pushing-directories (stashdir &optional time)
-  (list 
-   (fsvn-expand-file "files" stashdir) 
+  (list
+   (fsvn-expand-file "files" stashdir)
    (fsvn-expand-file "status" stashdir)))
 
 (defun fsvn-stash-pushing-directory (directory &optional time)
-  (let* ((stashdir (fsvn-expand-file (format-time-string "%s" time) 
+  (let* ((stashdir (fsvn-expand-file (format-time-string "%s" time)
                                      (fsvn-stash-hash-directory directory))))
     stashdir))
 
@@ -301,8 +301,8 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
        (fsvn-expand-file (format "%d" sec) dir))
      (sort
       (remove nil
-              (mapcar 
-               (lambda (name) 
+              (mapcar
+               (lambda (name)
                  (when (string-match "^[0-9]+$" name)
                    (string-to-number name)))
                files))
@@ -402,7 +402,7 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 
 
 
-;; TODO grep svn log 
+;; TODO grep svn log
 ;;  async incremental search? what ui is?
 
 
@@ -436,8 +436,8 @@ How to send a bug report:
      nil nil fsvn-bugreport-salutation)
     (mail-position-on-field "subject")
     (insert pkgname "; Bug report" )
-    (unless (y-or-n-p 
-             (concat 
+    (unless (y-or-n-p
+             (concat
               "This bug report may contain privacy information (Like password).\n"
               "Please delete manually. OK? " ))
       (set-buffer-modified-p nil)
@@ -507,7 +507,7 @@ How to send a bug report:
          proc)
     (fsvn-process-environment
      (setq proc (start-process "fsvn" buffer fsvn-svnsync-command-internal "synchronize" cached-url)))
-    (set-process-sentinel proc 
+    (set-process-sentinel proc
                           (lambda (p e)
                             (fsvn-process-exit-handler p e
                               (kill-buffer (process-buffer p)))))
@@ -519,7 +519,7 @@ How to send a bug report:
 
 
 
-(define-minor-mode fsvn-log-diff-minor-mode 
+(define-minor-mode fsvn-log-diff-minor-mode
   ""
   nil nil nil
   )
@@ -535,7 +535,7 @@ How to send a bug report:
   ;;TODO
   )
 
-(define-globalized-minor-mode fsvn-log-diff-global-minor-mode fsvn-log-diff-minor-mode 
+(define-globalized-minor-mode fsvn-log-diff-global-minor-mode fsvn-log-diff-minor-mode
   fsvn-log-diff-turn-on
   )
 

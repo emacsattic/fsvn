@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -73,7 +73,7 @@
 (defvar fsvn-log-list-no-more-log nil
   "Set `t' if past log is not exists")
 
-(defvar fsvn-log-list-font-lock-keywords 
+(defvar fsvn-log-list-font-lock-keywords
   (list
    (list fsvn-log-list-re-terms '(1 fsvn-header-key-face) '(2 fsvn-header-face))
    (list fsvn-log-list-re-target '(1 fsvn-header-key-face) '(2 fsvn-header-face))
@@ -318,7 +318,7 @@ Keybindings:
 (defun fsvn-log-list-terms-header (first last)
   (let ((formatter (lambda (entry)
                      (if entry
-                         (format-time-string 
+                         (format-time-string
                           "%Y-%m-%d" (fsvn-xml-log->logentry=>date$ entry))
                        ""))))
     (concat
@@ -338,7 +338,7 @@ Keybindings:
     (cond
      ((re-search-forward fsvn-log-list-re-terms nil t)
       (replace-match (fsvn-log-list-terms-header first last) nil nil nil 2)))))
-        
+
 (defun fsvn-log-list-setup-detail-windows ()
   (let ((message-buffer (fsvn-log-message-get-buffer))
         (sibling-buffer (fsvn-log-sibling-get-buffer))
@@ -548,7 +548,7 @@ from is marked point, to is current point."
   (let* ((root (fsvn-buffer-repos-root))
          (urlrev fsvn-logview-target-urlrev)
          (count (or count (fsvn-config-log-limit-count root))))
-    (setq fsvn-log-list-main-process 
+    (setq fsvn-log-list-main-process
           (fsvn-log-list-process urlrev root rev-range count))
     (setq deactivate-mark nil)
     fsvn-log-list-main-process))
@@ -574,7 +574,7 @@ from is marked point, to is current point."
     proc))
 
 (defun fsvn-log-list-async-draw-entries (entries)
-  (setq fsvn-log-list-entries 
+  (setq fsvn-log-list-entries
         (fsvn-logs-unique-merge entries fsvn-log-list-entries))
   (let* ((terms (fsvn-logs-terminate-entries fsvn-log-list-entries))
          (first (car terms))
@@ -689,13 +689,13 @@ from is marked point, to is current point."
       (error "This log has no local relation"))
     (when (file-directory-p path)
       (error "Cannot revert directory"))
-    (unless (y-or-n-p (format 
-                       "Revert `%s' to revision %s? " 
+    (unless (y-or-n-p (format
+                       "Revert `%s' to revision %s? "
                        (fsvn-file-name-nondirectory path)
                        (fsvn-urlrev-revision urlrev)))
       (fsvn-quit))
     (list urlrev path)))
-  
+
 (defun fsvn-log-list-cmd-read-urlrev ()
   (list (fsvn-log-list-cmd-urlrev)))
 
@@ -711,7 +711,7 @@ from is marked point, to is current point."
 (defun fsvn-log-list-cmd-read-merged-import ()
   (let ((url (fsvn-completing-read-url "URL import from: " nil t))
         from to)
-    (fsvn-brief-message-showing 
+    (fsvn-brief-message-showing
      (fsvn-brief-message-add-message (format "URL: %s" url))
      (setq from (fsvn-completing-read-revision "Revision from: " nil nil url))
      (fsvn-brief-message-add-message (format "Revision from: %s" (fsvn-get-revision-string from)))
@@ -727,7 +727,7 @@ from is marked point, to is current point."
   (let* ((prompt (format "Search Regexp (%s): " (or (car fsvn-log-list-sarch-history) "")))
          (reg (read-from-minibuffer prompt
                                     nil nil nil 'fsvn-log-list-sarch-history)))
-    (if (string= reg "") 
+    (if (string= reg "")
         (car fsvn-log-list-sarch-history)
       reg)))
 
@@ -1192,7 +1192,7 @@ Keybindings:
 (defun fsvn-log-sibling-sorted-paths (logentry)
   (sort (copy-sequence (fsvn-xml-log->logentry->paths logentry))
         (lambda (p1 p2)
-          (string-lessp 
+          (string-lessp
            (fsvn-xml-log->logentry->paths->path$ p1)
            (fsvn-xml-log->logentry->paths->path$ p2)))))
 
@@ -1210,7 +1210,7 @@ Keybindings:
         (message-log-max))
     (if (and entry
              (not (string= (fsvn-xml-log->logentry->path.copyfrom-path entry) "")))
-        (message "Copy from %s@%s" 
+        (message "Copy from %s@%s"
                  (fsvn-xml-log->logentry->path.copyfrom-path entry)
                  (fsvn-xml-log->logentry->paths->path.copyfrom-rev entry))
       (message nil))))
@@ -1222,8 +1222,8 @@ Keybindings:
       (error "No file on this line"))
     (setq filename (fsvn-urlrev-filename from))
     (setq target (fsvn-log-sibling-target-urlrev))
-    (setq initial 
-          (fsvn-expand-file 
+    (setq initial
+          (fsvn-expand-file
            filename
            (cond
             ((not (fsvn-url-local-p target))
@@ -1439,7 +1439,7 @@ Keybindings:
   (setq buffer-read-only nil)
   (force-mode-line-update)
   (message
-   (substitute-command-keys 
+   (substitute-command-keys
     (concat "Type \\[fsvn-log-message-commit] to finish edit, \
 \\[fsvn-log-message-quit-edit] to quit edit."))))
 
@@ -1505,7 +1505,7 @@ Keybindings:
               (erase-buffer)
               (setq fsvn-buffer-repos-info repos-info)
               (setq fsvn-logview-target-urlrev urlrev)
-              (setq fsvn-log-list-target-path 
+              (setq fsvn-log-list-target-path
                     (fsvn-repository-path root (fsvn-xml-info->entry=>url$ info)))
               (fsvn-electric-line-select-mode 1)
               (setq fsvn-electric-next-data-function 'fsvn-log-list-next-data-if-need)

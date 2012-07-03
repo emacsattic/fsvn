@@ -42,7 +42,7 @@ Search full of repository is bad idea. that is too heavy.
 Cache repository? or cache diff output that between 1- revision?
 
 
-** describe document about process-list 
+** describe document about process-list
 enable send password
 freezing processes.
 
@@ -78,6 +78,8 @@ fix INSTALL
 how to ignore compiling fsvn-win.el in linux.
 ignore fsvn-dev.el (?)
 
+** considering using delete-by-moving-to-trash
+
 * magic
 ** `fsvn-magic-directory-files' accept svn:externals
 
@@ -90,7 +92,7 @@ ignore fsvn-dev.el (?)
 
 ** move case wrong file by svn `move'
 
-on windows 
+on windows
 fsvn-browse.*move-in-repository
 
 ** fsvn-browse-svn:externals-selected
@@ -151,17 +153,17 @@ When property is changed, created patch wrong??
 
 ** async revert buffer
 
-default range is current-revision 
+default range is current-revision
 1. target-path is /path/to/hoge@1234 range is 1000 - 1234
  this case failed if specify range 1000 - HEAD
  1000 - 1235 were succeed if rev.1235 is exists
 2. target-path is /path/to/foo
- MINIMUM REVISION to HEAD is more specific. 
+ MINIMUM REVISION to HEAD is more specific.
 
 ** revert buffer
 
 when svn:log or svn:date was changed
-   
+
 * prop-mode
 ** prop-recursive-mode
 

@@ -2,7 +2,7 @@
 
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -20,7 +20,7 @@
     (fsvn-process-list-showing-process)
     (fsvn-process-list-processes . fsvn-process-list-processes)
     (fsvn-process-list-timer)
-    
+
     (font-lock-defaults . '(fsvn-process-list-font-lock-keywords nil nil nil beginning-of-line))
     (revert-buffer-function . 'fsvn-process-list-revert-buffer)
     (kill-buffer-hook . kill-buffer-hook)
@@ -47,7 +47,7 @@
     ("PWD" -50)
     ("Command")))
 
-(defvar fsvn-process-list-font-lock-keywords 
+(defvar fsvn-process-list-font-lock-keywords
   (list
 
    (list (concat "\\`" (car (car fsvn-process-list-column-alist)))
@@ -248,7 +248,7 @@ Keybindings:
                        (let ((sizestr (fsvn-filled-column size (fsvn-process-list-column:size "Buffer-Size")))
                              (status (fsvn-filled-column (process-status p) (fsvn-process-list-column:size "Status")))
                              buffer-read-only)
-                         
+
                          (replace-match (format "%s %s" sizestr status) nil nil nil 1)
                          (goto-char prev)))))
                   ((funcall fsvn-process-list-display-p-function p)

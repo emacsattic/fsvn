@@ -5,9 +5,9 @@
 
 (defun mw32cmp-test-equality ()
   (setq mw32cmp-test-checked-type nil)
-  (ad-add-advice 'mw32cmp-registry-type-converter 
-                 (list 'mw32cmp-registry-type-converter-check nil t 
-                       (list 'advice 'lambda nil 
+  (ad-add-advice 'mw32cmp-registry-type-converter
+                 (list 'mw32cmp-registry-type-converter-check nil t
+                       (list 'advice 'lambda nil
                              `(unless (memq ad-return-value mw32cmp-test-checked-type)
                                 (setq mw32cmp-test-checked-type
                                       (cons ad-return-value mw32cmp-test-checked-type)))))
@@ -50,7 +50,7 @@
            (mw32cmp-test-registry-equality (mw32cmp-pseudo-registry-concat-key target-key key-name)))
          pseudo)
         t)
-    (error 
+    (error
      (let (buffer-read-only)
        (insert (format "%s: %s\n" target-key err))
        (signal 'error err)))))

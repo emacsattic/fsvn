@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -283,7 +283,7 @@ WITH-DIR non-nil means return cell like (directory-name . property-value)."
            (let (buffer-read-only)
              (insert e))
            (set-buffer-modified-p nil)))))
-    (set-process-sentinel 
+    (set-process-sentinel
      proc
      `(lambda (p e)
         (fsvn-process-exit-handler p e
@@ -410,7 +410,7 @@ FILES accept a file as string."
   (let ((default-directory (file-name-as-directory dir)))
     (with-temp-buffer
       (fsvn-call-command "update" (current-buffer)
-                         (when revision 
+                         (when revision
                            (list "--revision" revision)))
       (goto-char (point-max))
       (unless (re-search-backward "^At revision \\([0-9]+\\)." nil t)
@@ -445,7 +445,7 @@ Imported from %u at %r"
           (coding-system-for-write fsvn-svn-common-coding-system))
       (write-region log-message nil message nil 'no-msg)
       message)))
-  
+
 (defun fsvn-overwrite-import-with-log (src-url rev-range dest-url)
   "Overwrite DEST-URL by SRC-URL completely ignore conflict.
 REV-RANGE cons cell like (from . to)
@@ -483,7 +483,7 @@ REV-RANGE cons cell like (from . to)
            (when src-directoryp
              (fsvn-browse-upgrade-source-tree export-file))
            (fsvn-call-command-display "commit" popup-buffer
-                                      (if message 
+                                      (if message
                                           (list "--file" message)
                                         (list "--message" "")))))
        log-entries))
@@ -507,13 +507,13 @@ If ignore all conflict (DEST-URL subordinate to SRC-URL), use `fsvn-overwrite-im
     (message "Creating temporary working copy...")
     (cond
      (src-directoryp
-      (setq dest-wc 
-            (if (fsvn-url-local-p dest-url) 
+      (setq dest-wc
+            (if (fsvn-url-local-p dest-url)
                 dest-url
               (fsvn-get-temporary-wc dest-url t)))
       (setq merging-file dest-wc))
      (t
-      (setq dest-wc 
+      (setq dest-wc
             (if (fsvn-url-local-p dest-url)
                 (fsvn-url-dirname dest-url)
               (fsvn-get-temporary-wc (fsvn-url-dirname dest-url))))
@@ -525,7 +525,7 @@ If ignore all conflict (DEST-URL subordinate to SRC-URL), use `fsvn-overwrite-im
             (unwind-protect
                 (with-current-buffer buffer
                   (fsvn-merged-import-with-log-entries
-                   log-entries src-root 
+                   log-entries src-root
                    src-url src-path src-directoryp merging-file popup-buffer)
                   (message "Successfully finished merging rev.%s to rev.%s." (car rev-range) (cdr rev-range))
                   nil)
@@ -535,7 +535,7 @@ If ignore all conflict (DEST-URL subordinate to SRC-URL), use `fsvn-overwrite-im
       (switch-to-buffer buffer)
       (error "Conflicted when merging %s. Resolve commit it" conflict-urlrev))))
 
-(defun fsvn-merged-import-with-log-entries 
+(defun fsvn-merged-import-with-log-entries
   (log-entries src-root src-url src-path src-directoryp
                merging-file popup-buffer)
   (mapc
@@ -565,9 +565,9 @@ If ignore all conflict (DEST-URL subordinate to SRC-URL), use `fsvn-overwrite-im
         (lambda (file)
           (fsvn-call-command-display "add" popup-buffer file))
         add-files)
-       (fsvn-call-command-display "commit" 
+       (fsvn-call-command-display "commit"
                                   popup-buffer
-                                  (if message 
+                                  (if message
                                       (list "--file" message)
                                     (list "--message" "")))
        (fsvn-call-command-discard "update")
@@ -654,7 +654,7 @@ If ignore all conflict (DEST-URL subordinate to SRC-URL), use `fsvn-overwrite-im
                  (throw 'found ls-entry)))
              (fsvn-get-ls dir))))
          new-name)
-    (if (or (null target-entry) 
+    (if (or (null target-entry)
             (and (setq new-name (fsvn-xml-lists->list->entry=>name$ target-entry))
                  (string= new-name orig-name)))
         (message "Nothing to do.")
@@ -766,7 +766,7 @@ Argument FILES ."
                 (unless (setq cell (assoc d dirs))
                   (setq cell (cons d nil))
                   (setq dirs (cons cell dirs)))
-                (setcdr cell (fsvn-status-dir-status-stronger  
+                (setcdr cell (fsvn-status-dir-status-stronger
                               (fsvn-status-string-to-dir-status status)
                               (cdr cell)))))
             (when (fsvn-url-child-p dir file)
@@ -818,7 +818,7 @@ Argument FILES ."
       (while (re-search-forward fsvn-svn-status-versioned-regexp nil t)
         (setq status (match-string 1)
               file (match-string 2))
-        (setq fsvn-recursive-status-parsed 
+        (setq fsvn-recursive-status-parsed
               (cons (list (fsvn-expand-file file) status) fsvn-recursive-status-parsed))))))
 
 

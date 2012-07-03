@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -109,7 +109,7 @@
         comparator)
     (if (null buffers)
         (message "No popup buffer.")
-      (setq comparator 
+      (setq comparator
             (if backward
                 (lambda (x y) (not (string-lessp (buffer-name x) (buffer-name y))))
               (lambda (x y) (string-lessp (buffer-name x) (buffer-name y)))))
@@ -359,7 +359,7 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
          file-handler auto-mode ignore-buffers)
     (mapc
      (lambda (x)
-       (let (enabler activator)
+       (let (enabler)
          (if feature
              (setq enabler 'ad-enable-advice)
            (setq enabler 'ad-disable-advice))
@@ -557,7 +557,7 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
          size1 size2)
     (fsvn-save-browse-file-excursion file
       (if (or (null base)
-              (string= 
+              (string=
                (downcase (or (fsvn-deps-get-property "svn:eol-style" file) ""))
                "native"))
           (fsvn-browse-draw-file-status file)

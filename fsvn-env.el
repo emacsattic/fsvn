@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -72,7 +72,7 @@ Save selected window, not contain point."
          (progn
            (select-window ,window)
            ,@form)
-       (when (window-live-p RETURN-WINDOW) 
+       (when (window-live-p RETURN-WINDOW)
          (select-window RETURN-WINDOW)))))
 
 (cond
@@ -258,9 +258,9 @@ Save selected window, not contain point."
 
 
 (defun fsvn-filled-column (value &optional pad)
-  (format (concat "%" 
+  (format (concat "%"
                   (when pad (int-to-string pad))
-                  (cond 
+                  (cond
                    ((integerp value) "d")
                    ((stringp value) "s")
                    ((symbolp value) "s")
@@ -693,7 +693,7 @@ referenced mew-complete.el"
 
 
 
-(if (fboundp 'characterp) 
+(if (fboundp 'characterp)
     ;; for Emacs 23 or later
     (defalias 'fsvn-characterp 'characterp)
   ;; for Emacs 22

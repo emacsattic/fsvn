@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -189,7 +189,7 @@ If there is executing problem in windows/cygwin then set path to perl.exe."
             (replace-match mirroered-url t nil nil 2)))))))
 
 (defmacro fsvn-svk-process-environment (&rest form)
-  `(fsvn-process-environment 
+  `(fsvn-process-environment
     (let ((process-environment (copy-sequence process-environment)))
       (setenv "PERLLIB" fsvn-svk-perllib)
       (setenv "EDITOR" fsvn-svk-editor-command)
@@ -212,7 +212,7 @@ If there is executing problem in windows/cygwin then set path to perl.exe."
   (fsvn-svk-process-environment
    (let ((real-args (fsvn-command-args-canonicalize args))
          internal-args proc script)
-     (setq internal-args 
+     (setq internal-args
            (if (null fsvn-svk-perl-command)
                (list fsvn-svk-script)
              (setq script (executable-find fsvn-svk-script))
@@ -272,7 +272,7 @@ If there is executing problem in windows/cygwin then set path to perl.exe."
 
 (defun fsvn-svk-depotmap-init (buffer)
   (let ((proc (fsvn-svk-start-command "depotmap" buffer "--init")))
-    (fsvn-process-add-filter proc 
+    (fsvn-process-add-filter proc
                              (lambda (proc event)
                                (when (string-match "^Repository .* does not exist, create\\? (y/n)" event)
                                  (process-send-string proc "y\n"))))

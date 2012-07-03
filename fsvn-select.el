@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -50,7 +50,7 @@
 (defvar fsvn-select-file-msgedit-buffer nil)
 (defvar fsvn-select-file-draw-list-function nil)
 
-(defvar fsvn-select-file-font-lock-keywords 
+(defvar fsvn-select-file-font-lock-keywords
   (list
    (list fsvn-select-file-re-root '(1 fsvn-header-key-face) '(2 fsvn-header-face))
    (list fsvn-select-file-re-mark '(0 fsvn-mark-face))
@@ -94,7 +94,7 @@
           (define-key map "u" 'fsvn-select-file-mark-clear)
           (define-key map "D" 'fsvn-select-file-do-delete-this)
           (define-key map "w" 'fsvn-select-file-copy-filename)
-          
+
           (define-key map "zd" 'fsvn-select-file-delete-this)
 
           ;; TODO
@@ -439,7 +439,7 @@ Keybindings:
 
 (defun fsvn-select-file-view-file (file)
   (interactive (fsvn-select-file-command-file))
-  ;;TODO when open directory not view-mode 
+  ;;TODO when open directory not view-mode
   (let ((buffer (fsvn-get-view-buffer file)))
     (fsvn-view-buffer buffer)))
 
@@ -508,7 +508,7 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 
 This is usefull for missing file (marked `!')
 "
-  (interactive (list (fsvn-expand-file (fsvn-current-filename)) 
+  (interactive (list (fsvn-expand-file (fsvn-current-filename))
                      (when current-prefix-arg
                        (fsvn-read-svn-subcommand-args "delete" t nil))))
   (if (or (not (fsvn-interactive-p))

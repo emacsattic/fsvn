@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -213,7 +213,7 @@ FIXME Does Emacs have list like this? "
                     (fsvn-generic-format-file-size
                      (fsvn-safe-xml-lists->list->entry=>size$ entry))
                     (format-time-string
-                     fsvn-generic-datetime-format 
+                     fsvn-generic-datetime-format
                      (fsvn-magic-xml-list/info-entry=>commit=date entry))
                     filename
                     )))
@@ -320,9 +320,9 @@ FIXME Does Emacs have list like this? "
            (ret (replace-match "" nil nil file))
            absolute-path segment-list)
       (setq segment-list (split-string ret "/"))
-      (setq absolute-path (fsvn-magic-parse-file-name-absolute-path 
+      (setq absolute-path (fsvn-magic-parse-file-name-absolute-path
                            (car segment-list) (cdr segment-list)))
-      (fsvn-url-urlrev (concat 
+      (fsvn-url-urlrev (concat
                         (fsvn-svn-url-scheme-segment (car segment-list))
                         absolute-path) rev)))
    ((and (not (file-name-absolute-p file))
@@ -901,7 +901,7 @@ But `fsvn-magic-get-ls-entry' is not perfect for under repository root directori
 
 
 ;; suppress vc-find-file-hook because this makes slow
-(defadvice after-find-file 
+(defadvice after-find-file
   (around fsvn-after-find-file () disable)
   (let ((find-file-hook find-file-hook))
     (when (and buffer-file-name (fsvn-magic-file-name-absolute-p buffer-file-name))

@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -109,7 +109,7 @@
 (defvar fsvn-browse-file-name-function 'fsvn-browse-point-urlrev) ;; TODO obsolete
 (defvar fsvn-browse-revision nil)
 
-(defvar fsvn-browse-font-lock-keywords 
+(defvar fsvn-browse-font-lock-keywords
   (list
 
    ;; Directory headers.
@@ -204,7 +204,7 @@
           (define-key map "p" 'fsvn-browse-propview-this)
           (define-key map "t" 'fsvn-browse-add-changelist-selected)
           (define-key map "u" 'fsvn-browse-update-selected)
-          ;; Do not use "v" 
+          ;; Do not use "v"
 
           map)))
 
@@ -358,7 +358,7 @@ Keybindings:
 (defun fsvn-browse-dired-confirm (objects op-symbol &optional confirmer)
   (let (file-list buf-name prompt message)
     (setq file-list
-          (mapcar 
+          (mapcar
            (lambda (x)
              (cond
               ((bufferp x)
@@ -372,7 +372,7 @@ Keybindings:
     (setq buf-name (nth 0 message)
           prompt (nth 1 message))
     (dired-mark-pop-up
-     buf-name op-symbol file-list 
+     buf-name op-symbol file-list
      `(lambda (prompt) (let ((default-directory ,default-directory))
                          (funcall ',(or confirmer dired-deletion-confirmer) prompt)))
      (format prompt (dired-mark-prompt t file-list)))))
@@ -484,7 +484,7 @@ Keybindings:
 
 (defun fsvn-browse-directory-files (directory &optional full match)
   (let ((files (directory-files directory nil (or match dired-re-no-dot)))
-        (filename-func (if full 
+        (filename-func (if full
                            (lambda (name) (fsvn-expand-file name directory))
                          'identity))
         ret)
@@ -564,9 +564,9 @@ STATUS `t' means force to add entry."
                     (if dirp ?d fsvn-space-char)
                     (fsvn-browse-ls-revision entry)
                     (fsvn-browse-ls-author-column entry)
-                    (fsvn-generic-format-file-size 
+                    (fsvn-generic-format-file-size
                      (fsvn-safe-xml-lists->list->entry=>size$ entry) fsvn-browse-ls-size-length)
-                    (format-time-string fsvn-generic-datetime-format 
+                    (format-time-string fsvn-generic-datetime-format
                                         (fsvn-xml-lists->list->entry=>commit=>date$ entry))
                     filename))))
 
@@ -595,7 +595,7 @@ STATUS `t' means force to add entry."
                     (fsvn-ui-symlink-trailer linkp)))))
 
 (defun fsvn-browse-ls-revision (entry)
-  (fsvn-string-lpad 
+  (fsvn-string-lpad
    (number-to-string (fsvn-xml-lists->list->entry=>commit.revision entry))
    fsvn-browse-ls-revision-length))
 
@@ -719,7 +719,7 @@ PATH is each executed path."
         (src-dir (fsvn-file-name-directory src-file))
         (dest-dir (fsvn-file-name-directory dest-file))
         regexp src-files)
-    (setq src-files 
+    (setq src-files
           (fsvn-mapitem
            (lambda (file)
              (when (fsvn-deps-file-registered-p file)
@@ -910,7 +910,7 @@ PATH is each executed path."
     (insert user-string)))
 
 (defun fsvn-browse-status-string-to-display-status (status-string)
-  ;;TODO more fast 
+  ;;TODO more fast
   (fsvn-string-rpad (replace-regexp-in-string " " "." status-string) fsvn-svn-status-length ?.))
 
 (defun fsvn-browse-clear-status (file)
@@ -964,10 +964,10 @@ PATH is each executed path."
         (erase-buffer)
         (fsvn-browse-mode)
         (fsvn-browse-repos-start-info-process directory-urlrev)
-        (setq fsvn-browse-ls-comparer 
+        (setq fsvn-browse-ls-comparer
               (or
-               (and comparer 
-                    (memq comparer 
+               (and comparer
+                    (memq comparer
                           (cdr (assq 'repository fsvn-browse-ls-comparator-alist)))
                     comparer)
                'fsvn-browse-ls-entry-name-comparer))
@@ -1571,7 +1571,7 @@ This implements consider svn:ignored directory."
 
 (defun fsvn-browse-repos-insert-entry (entry)
   (fsvn-browse-ls-insert-repos-entry entry)
-  (setq fsvn-browse-repos-entries 
+  (setq fsvn-browse-repos-entries
         (cons entry fsvn-browse-repos-entries)))
 
 (defun fsvn-browse-repos-async-draw-entries (entries)
@@ -1666,17 +1666,17 @@ This implements consider svn:ignored directory."
      (list args))))
 
 (defun fsvn-browse-cmd-read-smart-copy-this ()
-  (fsvn-browse-cmd-read-smart-copy/move-this 
+  (fsvn-browse-cmd-read-smart-copy/move-this
    (fsvn-browse-cmd-this-urlrev) t))
 
 (defun fsvn-browse-cmd-read-smart-move-this ()
   (fsvn-browse-cmd-wc-only
-   (fsvn-browse-cmd-read-smart-copy/move-this 
+   (fsvn-browse-cmd-read-smart-copy/move-this
     (fsvn-browse-cmd-this-wc-file) nil)))
 
 (defun fsvn-browse-cmd-read-smart-copy/move-this (from copy-p)
   (let* ((subcommand (if copy-p "copy" "move"))
-         (default-args (if copy-p 
+         (default-args (if copy-p
                            fsvn-default-args-copy
                           fsvn-default-args-move))
          (from (fsvn-browse-cmd-this-urlrev))
@@ -1689,20 +1689,20 @@ This implements consider svn:ignored directory."
                          (if copy-p "copying" "moving")))
          selected)
     (when (> (length alist) 1)
-      (setq selected (fsvn-electric-select-files 
+      (setq selected (fsvn-electric-select-files
                       directory
                       (mapcar
                        (lambda (item)
-                         (list (car item) 
+                         (list (car item)
                                t
-                               (format "%s to %s" 
+                               (format "%s to %s"
                                        (capitalize subcommand)
                                        (fsvn-url-relative-name (cdr item) directory))
                                (cdr item)))
                        alist)
                       prompt))
-      (setq alist (mapcar 
-                   (lambda (item) 
+      (setq alist (mapcar
+                   (lambda (item)
                      (cons (nth 0 item) (nth 3 item)))
                    selected)))
     (list alist args)))
@@ -1762,7 +1762,7 @@ This implements consider svn:ignored directory."
 (defun fsvn-browse-cmd-read-switch ()
   "Return `switch' arguments name."
   (fsvn-browse-cmd-wc-only
-   (let* ((repository (fsvn-completing-read-url 
+   (let* ((repository (fsvn-completing-read-url
                        "Switch to URL: "
                        (fsvn-url-as-directory (fsvn-browse-current-repository-url))
                        t))
@@ -1822,11 +1822,11 @@ This implements consider svn:ignored directory."
       (setq confirmer
             (lambda (prompt)
               (fsvn-read-file-under-versioned prompt nil)))
-      (setq dest (fsvn-browse-dired-confirm 
+      (setq dest (fsvn-browse-dired-confirm
                   src-files 'fsvn-browse-svn:externals-selected confirmer))
       (list src-files dest))
      (t
-      (setq dest (fsvn-browse-dired-confirm 
+      (setq dest (fsvn-browse-dired-confirm
                   src-files 'fsvn-browse-svn:externals-selected 'fsvn-read-versioned-directory))
       (list src-files dest)))))
 
@@ -2005,8 +2005,8 @@ This implements consider svn:ignored directory."
          (newrev (fsvn-completing-read-revision nil nil nil (fsvn-browse-current-path)))
          (urlrev (fsvn-url-urlrev (fsvn-xml-info->entry=>url$ info) newrev))
          (file (fsvn-current-filename)))
-    (fsvn-browse-switch-directory-buffer 
-     urlrev (and fsvn-browse-repos-p 
+    (fsvn-browse-switch-directory-buffer
+     urlrev (and fsvn-browse-repos-p
                  (if (string= currev newrev) 'draw 'revert))
      file)
     (when file
@@ -2256,7 +2256,7 @@ This is useful for integrating other source management.
         (error "if SRC-FILE is directory, DEST-FILE must be a directory.")))
       (setq tmpfile (fsvn-make-temp-filename src-file))
       (rename-file dest-file tmpfile t)
-      (unwind-protect 
+      (unwind-protect
           (fsvn-popup-call-process "move" (list src-file) dest-file args)
         (cond
          ((fsvn-file-exact-directory-p tmpfile)
@@ -2276,7 +2276,7 @@ This is useful for integrating other source management.
     (let (tmpfile)
       (setq tmpfile (fsvn-make-temp-filename src-file))
       (rename-file dest-file tmpfile t)
-      (unwind-protect 
+      (unwind-protect
           (fsvn-popup-call-process "copy" (list src-file) dest-file args)
         (cond
          ((fsvn-file-exact-directory-p tmpfile)

@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -48,7 +48,7 @@
 (defvar fsvn-proplist-target-mode nil
   "`revprop', `properties'")
 
-(defvar fsvn-proplist-font-lock-keywords 
+(defvar fsvn-proplist-font-lock-keywords
   (list
    (list fsvn-proplist-re-header '(1 fsvn-header-key-face) '(2 fsvn-header-face))
    (list (concat "^[" (char-to-string fsvn-mark-delete-char) "]")

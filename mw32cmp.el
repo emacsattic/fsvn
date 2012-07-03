@@ -6,10 +6,10 @@
 ;;
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;;   
+;;
 ;;  Implemented by Elisp + reg.exe
 
 ;; TODO
@@ -138,7 +138,7 @@
     (setq args (list "query" key))
     (setq matcher
           (if with-data
-              (lambda () 
+              (lambda ()
                 (let ((key (match-string 0))
                       (subkey (match-string 1)))
                   (cons subkey (mw32cmp-pseudo-registry-get key))))
@@ -190,8 +190,8 @@
   (let (args)
     (setq args (list "delete" key "/f"))
     (or (mw32cmp-call-reg-update-process args)
-        (signal 'error 
-                (cons "Invalid registry key" 
+        (signal 'error
+                (cons "Invalid registry key"
                       (mw32cmp-registry-pseudo-parse-key key))))))
 
 (defun mw32cmp-pseudo-registry-delete-value (key name)
@@ -202,8 +202,8 @@
     (setq args (list "delete" key "/f" "/v" name))
     (or (mw32cmp-call-reg-update-process args)
         (let ((parsed (mw32cmp-registry-pseudo-parse-key key)))
-          (signal 'error (cons "Invalid registry name" 
-                               (cons (car parsed) 
+          (signal 'error (cons "Invalid registry name"
+                               (cons (car parsed)
                                      (cons (cdr parsed) name))))))))
 
 (defun mw32cmp-pseudo-registry-set (key name data)
@@ -214,7 +214,7 @@
   (let ((parsed (mw32cmp-registry-pseudo-parse-data data))
          args)
     (setq args (list "add" key "/f"
-                     "/v" name 
+                     "/v" name
                      "/t" (car parsed)
                      "/d" (cdr parsed)))
     ;; BUG Create key under non-existent key meadow version throw error.
@@ -270,7 +270,7 @@
     (setq type (nth 0 reg-define))
     (setq value (funcall (nth 2 reg-define) reg-value))
     (cons name (when value (cons value type)))))
-  
+
 (defsubst mw32cmp-pseudo-registry-matched-name ()
   (let ((reg-name (match-string 1))
         name)
@@ -279,10 +279,10 @@
 
 (defsubst mw32cmp-pseudo-registry-key-name (reg-name)
   (if (string= reg-name mw32cmp-pseudo-registry-default-name)
-      "" 
+      ""
     reg-name))
 
-(defun mw32cmp-registry-parse-binary (value) 
+(defun mw32cmp-registry-parse-binary (value)
   (let ((i 0)
         (len (length value))
         hex char list)
@@ -293,7 +293,7 @@
       (setq i (+ i 2)))
     (concat (nreverse list))))
 
-(defun mw32cmp-registry-parse-dword (value) 
+(defun mw32cmp-registry-parse-dword (value)
   (unless (string-match "^0x\\([0-9a-z]+\\)$" value)
     (signal 'error (list "Not a hex value" value)))
   (let ((hex (match-string 1 value))
@@ -304,10 +304,10 @@
 (defun mw32cmp-registry-parse-dword-big-endian (value) value)
 (defun mw32cmp-registry-parse-expand-sz (value) value)
 (defun mw32cmp-registry-parse-link (value) value)
-(defun mw32cmp-registry-parse-multi-sz (value) 
+(defun mw32cmp-registry-parse-multi-sz (value)
   (split-string value "\\\\0" t))
 (defun mw32cmp-registry-parse-none (value) value)
-(defun mw32cmp-registry-parse-qword (value) 
+(defun mw32cmp-registry-parse-qword (value)
   (let ((i 0)
         (len (length value))
         hhex lhex list)

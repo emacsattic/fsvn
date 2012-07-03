@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -159,7 +159,7 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
             `(,fsvn-original-actor fsvn-async-proc fsvn-async-event)
           `(fsvn-async-default-filter/sentinel fsvn-async-proc fsvn-async-event))
        (when (= (process-exit-status fsvn-async-proc) 0)
-         (fsvn-async-executor 
+         (fsvn-async-executor
           (process-get fsvn-async-proc 'fsvn-async-remain-forms)
           ',(mapcar 'car fsvn-var-alist)
           fsvn-async-proc)))))
@@ -192,14 +192,14 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
 
         ;; works well.
         ;; (fsvn-async-let ()
-        ;;   (start-process) 
+        ;;   (start-process)
         ;;   (fsvn-async-let ()
         ;;     (start-process))
         ;;   (start-process))
 
         ;; not work
         ;; (fsvn-async-let ()
-        ;;   (start-process) 
+        ;;   (start-process)
         ;;   (fsvn-async-let ()
         ;;     (start-process)
         ;;     (fsvn-async-let ()
@@ -213,7 +213,7 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
                   (cons var (cons (list 'quote (eval var)) nil)))
                 variables))
               (delegate (process-get ret 'fsvn-async-delegate-function)))
-          (process-put ret 'fsvn-async-delegate-function 
+          (process-put ret 'fsvn-async-delegate-function
                        `(lambda () (fsvn-async-executor ',forms ',variables)))
           (setq forms nil
                 suspended t)))
@@ -228,10 +228,10 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
           (process-put ret 'fsvn-async-remain-forms forms)
           (set-process-sentinel ret
                                 (fsvn-async-create-sentinel (process-sentinel ret) var-alist))
-          (set-process-filter ret 
+          (set-process-filter ret
                               (fsvn-async-create-filter (process-filter ret) var-alist))
           (when exited-process
-            (process-put ret 'fsvn-async-delegate-function 
+            (process-put ret 'fsvn-async-delegate-function
                          (process-get exited-process 'fsvn-async-delegate-function))))
         (setq forms nil
               suspended t))))
@@ -272,7 +272,7 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
        (cond
         ((null x))
         ((listp x)
-         (setq ret (append 
+         (setq ret (append
                     (nreverse (fsvn-command-args-canonicalize x subcommand))
                     ret)))
         ((stringp x)

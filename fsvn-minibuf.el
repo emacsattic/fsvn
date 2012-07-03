@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -171,7 +171,7 @@ The value of DEFAULT is not a number, allow to enter a nil value."
 
 (defun fsvn-completing-read-revision-range (initial-from initial-to &optional url)
   (let* ((from (fsvn-completing-read-revision "Revision From: " initial-from nil url))
-         (to (fsvn-completing-read-revision 
+         (to (fsvn-completing-read-revision
               (format "Revision %s -> Revision To: " from) initial-to nil url)))
     (cons from to)))
 
@@ -208,7 +208,7 @@ The value of DEFAULT is not a number, allow to enter a nil value."
   (let* ((default-url (and default-urlrev (fsvn-urlrev-url default-urlrev)))
          (default-rev (and default-urlrev (fsvn-urlrev-revision default-urlrev)))
          (url (fsvn-completing-read-url prompt default-url only-repository))
-         (rev (fsvn-completing-read-revision 
+         (rev (fsvn-completing-read-revision
                (format "%s%s Revision: " (or prompt "URL: ") url)
                default-rev nil url)))
     (fsvn-url-urlrev url rev)))
@@ -254,7 +254,7 @@ The value of DEFAULT is not a number, allow to enter a nil value."
   (apply 'fsvn-read-subcommand-args subcommand nil default-args))
 
 (defun fsvn-command-args-to-command-line (args)
-  (mapconcat 
+  (mapconcat
    (lambda (arg)
      (cond
       ((string-match "[ \t]" arg)
@@ -349,7 +349,7 @@ The value of DEFAULT is not a number, allow to enter a nil value."
       (fsvn-display-momentary-message " [Date context]"))
      (t
       (fsvn-complete-revision-symbol value)))
-    (when (and fsvn-complete-processing-revision-urlrev 
+    (when (and fsvn-complete-processing-revision-urlrev
                (string= (fsvn-complete-current-value) ""))
       (fsvn-display-momentary-message " [Type again]"))))
 
@@ -498,14 +498,14 @@ The value of DEFAULT is not a number, allow to enter a nil value."
         nil
       (delete-region start end)
       t)))
-  
+
 (defun fsvn-complete-url-start-sentence ()
-  (save-excursion 
+  (save-excursion
     (skip-chars-backward (fsvn-complete-non-word-class))
     (point)))
 
 (defun fsvn-complete-url-end-sentence ()
-  (save-excursion 
+  (save-excursion
     (skip-chars-forward (fsvn-complete-non-word-class))
     (point)))
 
@@ -518,12 +518,12 @@ The value of DEFAULT is not a number, allow to enter a nil value."
       t)))
 
 (defun fsvn-complete-url-start-segment ()
-  (save-excursion 
+  (save-excursion
     (skip-chars-backward "^/ \t\n")
     (point)))
 
 (defun fsvn-complete-url-end-segment ()
-  (save-excursion 
+  (save-excursion
     (skip-chars-forward "^/ \t\n")
     (point)))
 

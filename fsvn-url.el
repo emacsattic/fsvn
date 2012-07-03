@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -34,7 +34,7 @@
       url)))
 
 (defun fsvn-url-escape-revision-mark (url)
-  (if (and (not (fsvn-url-urlrev-p url)) 
+  (if (and (not (fsvn-url-urlrev-p url))
            (string-match fsvn-url-with-revision-regexp url))
       (concat url "@")
     url))
@@ -145,8 +145,8 @@
                   (equal (car base) (car full)))
         (setq base (cdr base)
               full (cdr full)))
-      (setq ret (append 
-                 (make-list (length base) "..") 
+      (setq ret (append
+                 (make-list (length base) "..")
                  full))
       (if (null ret)
           "./"
@@ -219,7 +219,7 @@
 (defun fsvn-url-urlrev (url rev)
   (if rev
       (let ((tmp (fsvn-get-revision-string rev)))
-        (concat (fsvn-url-directory-file-name url) "@" 
+        (concat (fsvn-url-directory-file-name url) "@"
                 (fsvn-string-put-property tmp 'fsvn-revision-property t)))
     url))
 
@@ -334,7 +334,7 @@
          (src-list (reverse (string-to-list src-name)))
          (dest-list (reverse (string-to-list dest-name)))
          src-diff dest-diff same)
-    (while (and src-list dest-list 
+    (while (and src-list dest-list
                 (= (car src-list) (car dest-list)))
       (setq same (cons (car src-list) same))
       (setq src-list (cdr src-list)

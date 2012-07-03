@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -78,7 +78,7 @@
          (fsvn-struct-ediff-config-get-file2 prev-config))))
 
 (defun fsvn-ediff-hash-directory (urlrev)
-  (let ((dir (fsvn-expand-file (md5 (fsvn-urlrev-dirname urlrev)) 
+  (let ((dir (fsvn-expand-file (md5 (fsvn-urlrev-dirname urlrev))
                                (fsvn-ediff-directory))))
     (unless (file-directory-p dir)
       (make-directory dir t))
@@ -277,7 +277,7 @@
   (let (proc)
     (write-region "" nil patch-file nil 'no-msg)
     (setq proc (apply 'fsvn-start-process nil "diff" args))
-    (set-process-sentinel proc (lambda (proc event) 
+    (set-process-sentinel proc (lambda (proc event)
                                  (message "Patch was created.")))
     (set-process-filter proc `(lambda (proc event)
                                 (write-region event nil ,patch-file t 'no-msg)))

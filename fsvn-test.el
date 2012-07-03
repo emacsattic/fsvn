@@ -1,10 +1,10 @@
 ;;; fsvn-test.el --- test for fsvn.el
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; History:
-;; 
+;;
 
 ;;; Code:
 
@@ -78,7 +78,7 @@
 
 (defmacro fsvn-test-excursion (&rest form)
   `(if noninteractive
-       (progn 
+       (progn
          (if (eq system-type 'windows-nt)
              ;; Ignore  when Windows (NTEmacs 22 & NTEmacs 23 & Meadow 3)
              ;; Following two code not works correctly when `noninteractive' call.
@@ -90,29 +90,29 @@
              ;;     (make-variable-buffer-local 'kill-buffer-hook)
              ;;     (add-hook 'kill-buffer-hook (lambda () (message "i was killed"))))
              ;;   (setq proc (start-process "A" buf "true"))
-             ;;   (set-process-sentinel proc 
-             ;;                         (lambda (p e) 
+             ;;   (set-process-sentinel proc
+             ;;                         (lambda (p e)
              ;;                           (let ((b (process-buffer p)))
              ;;                             (kill-buffer b))))
              ;;   (sit-for 3))
 
-             ;; 2 
+             ;; 2
              ;; (let ((proc (start-process "TEST" nil "true")))
              ;;   (while (eq (process-status proc) 'run)
              ;;     (message "%s" (process-status proc))
              ;;     (sit-for 3)))
-             
+
              (message "Not works on Windows. Skipped.")
            ,@form))
      (let ((PREV-BUFFER-LIST (buffer-list))
            (PREV-BUFFER (current-buffer))
            (PREV-WIN-CONFIG (current-window-configuration))
            (INIT-PROCESS-LIST (process-list)))
-       (unwind-protect 
+       (unwind-protect
            (progn ,@form)
          (fsvn-test-wait-for-all-process INIT-PROCESS-LIST)
          (unless fsvn-test-keep-buffers
-           (mapc 
+           (mapc
             (lambda (b)
               (unless (memq b PREV-BUFFER-LIST)
                 (let ((process (get-buffer-process b)))
@@ -148,7 +148,7 @@ To show and see result.
       (sit-for 2))))
 
 (defun fsvn-test-unbound-functions ()
-  (let ((targetp (lambda (s) 
+  (let ((targetp (lambda (s)
                    (and (string-match "^fsvn-test-" (symbol-name s))
                         (functionp s)
                         (listp (symbol-function s))))))
@@ -282,7 +282,7 @@ To show and see result.
 (fsvn-test-equal (fsvn-url-escape-revision-mark (fsvn-url-urlrev "svn://localhost/hoge" "HEAD")) "svn://localhost/hoge@HEAD")
 
 
-(fsvn-test-equal 
+(fsvn-test-equal
  (fsvn-complete-reading-split-arguments "-R \"white - space.txt\" -r 10:20")
  '("-R" "white - space.txt" "-r" "10:20"))
 
@@ -581,7 +581,7 @@ To show and see result.
     ;;      (sit-for 0.5))
     ;;       (process-send-string proc "p"))
     ;;todo
-    ;;       (fsvn-set-revprop-value (fsvn-url-urlrev url 2) 
+    ;;       (fsvn-set-revprop-value (fsvn-url-urlrev url 2)
     )
    (fsvn-test-async
     ;; open by browse-mode
@@ -677,7 +677,7 @@ To show and see result.
          )
         ((symbol-function (car cell))
          )
-        ((equal (cadr (symbol-function (car cell))) 
+        ((equal (cadr (symbol-function (car cell)))
                 (cadr (symbol-function (cdr cell))))
          cell)
         (t

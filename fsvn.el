@@ -64,7 +64,7 @@
 
 ;; 1. Add svn command path to `exec-path' correctly.
 ;;    Otherwise set `fsvn-svn-command' `fsvn-svnadmin-command' value by full-path before loading/requiring.
-;; 
+;;
 ;; (setq fsvn-svn-command "/path/to/svn.exe"
 ;;       fsvn-svnadmin-command "/path/to/svnadmin.exe")
 

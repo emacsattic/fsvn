@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;; NOTE
 ;;   when using svn+ssh protocol plinkw as tunnel, then window blinked.
@@ -30,12 +30,12 @@
 
 (defun fsvn-win-x64-p ()
   ;;TODO more efficient way..
-  (fsvn-file-exact-directory-p 
+  (fsvn-file-exact-directory-p
    (expand-file-name "syswow64" (getenv "windir"))))
 
 (defun fsvn-win-wow64-p ()
   (let ((windir (getenv "windir")))
-    (equal (nth 10 (file-attributes (expand-file-name "system32" windir))) 
+    (equal (nth 10 (file-attributes (expand-file-name "system32" windir)))
            (nth 10 (file-attributes (expand-file-name "syswow64" windir))))))
 
 
@@ -162,20 +162,20 @@
   (or
    (and (fsvn-win-wow64-p)
         (condition-case nil
-            (car (mw32-registry-get 
+            (car (mw32-registry-get
                   "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Cygwin\\setup"
                   "rootdir"))
           (error nil)))
    (condition-case nil
        ;; probably cygwin 1.7 or later
-       (car (mw32-registry-get 
+       (car (mw32-registry-get
              "HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygwin\\setup"
              "rootdir"))
      (error nil))
    (condition-case nil
        ;; cygwin 1.6 or earlier
        (car (mw32-registry-get
-             "HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2/" 
+             "HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2/"
              "native"))
      (error nil))))
 
@@ -254,7 +254,7 @@
 
 (defun fsvn-win-start-gui-viewer (&optional arg)
   (interactive "P")
-  (fsvn-browse-wc-only 
+  (fsvn-browse-wc-only
    (let ((dir (directory-file-name (fsvn-browse-current-directory-url))))
      (let ((file (fsvn-browse-point-url)))
        (fsvn-win-start-explorer dir arg (and file (file-name-nondirectory file)))))))

@@ -47,11 +47,11 @@ p {
     margin-right: 16px;
     }
 
-strong { 
+strong {
          color: red;
          }
 
-em { 
+em {
      border-bottom: solid 2px red;
      font-style: normal;
      }
@@ -75,11 +75,11 @@ pre {
       margin: 2em;
       }
 
-table { 
+table {
         border: 1px solid gray;
         }
 
-td { 
+td {
      border: 1px solid gray;
      padding: 5px;
      }
@@ -88,7 +88,7 @@ tr {
      border: 1px solid gray;
      }
 
-.dd-note { 
+.dd-note {
            /* dl padding-left + dd padding-left */
            padding-left: 50px;
            }

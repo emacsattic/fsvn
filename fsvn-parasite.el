@@ -1,10 +1,10 @@
 ;;; fsvn-parasite.el --- Parasite to any major-mode
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -20,7 +20,7 @@
     (error "Not arrowed operation in this major-mode `%s'" major-mode)))
 
 (defmacro fsvn-parasite-in-select-file (&rest form)
-  `(let ((BUFFER (if (eq major-mode 'fsvn-select-file-mode) 
+  `(let ((BUFFER (if (eq major-mode 'fsvn-select-file-mode)
                      (current-buffer)
                    fsvn-message-edit-file-select-buffer)))
      (unless BUFFER
@@ -41,7 +41,7 @@
   (fsvn-make-buffer-variables-internal variables))
 
 (defun fsvn-parasite-when-kill-buffer ()
-  (fsvn-parasite-cleanup-buffers 
+  (fsvn-parasite-cleanup-buffers
    (fsvn-parasite-related-buffers)))
 
 (defun fsvn-parasite-cleanup-buffers (buffers)
@@ -53,7 +53,7 @@
 
 (defun fsvn-parasite-quit-message-edit ()
   (interactive)
-  (fsvn-restore-window-buffer 
+  (fsvn-restore-window-buffer
    (fsvn-parasite-cleanup-message-edit)))
 
 (defun fsvn-parasite-cleanup-message-edit ()
@@ -72,14 +72,14 @@
   (message (substitute-command-keys (funcall fsvn-parasite-brief-help-function))))
 
 (defun fsvn-parasite-related-buffers ()
-  (remove nil (list 
+  (remove nil (list
                fsvn-select-file-msgedit-buffer
                fsvn-message-edit-file-select-buffer
                (current-buffer))))
 
 (defun fsvn-parasite-quit ()
   (interactive)
-  (fsvn-restore-window-buffer 
+  (fsvn-restore-window-buffer
    (fsvn-parasite-cleanup-buffers
     (fsvn-parasite-related-buffers))))
 
@@ -130,7 +130,7 @@
   "
 Keybindings:
 \\{fsvn-parasite-commit-mode-map}"
-  nil (" (Commit)" 
+  nil (" (Commit)"
        (:eval fsvn-parasite-commit-no-unlock)
        (:eval fsvn-parasite-commit-keep-changelist))
   fsvn-parasite-commit-mode-map
@@ -221,15 +221,15 @@ Keybindings:
       (fsvn-tortoise-commit-check files dir))))
 
 (defun fsvn-parasite-commit-gather-marked-files ()
-  (fsvn-parasite-in-select-file 
+  (fsvn-parasite-in-select-file
    (fsvn-select-file-gather-marked-files)))
 
 (defun fsvn-parasite-commit-choice-unversioned (files)
-  (fsvn-parasite-in-select-file 
+  (fsvn-parasite-in-select-file
    (fsvn-select-file-choice-unversioned files)))
 
 (defun fsvn-parasite-commit-choice-just-locked (files)
-  (fsvn-parasite-in-select-file 
+  (fsvn-parasite-in-select-file
    (fsvn-select-file-choice-just-locked files)))
 
 (defun fsvn-parasite-commit-set-subcommand-args (args)
@@ -347,7 +347,7 @@ Keybindings:
 
 (defun fsvn-parasite-delete-internal (targets buffer message)
   (let (proc)
-    (setq proc (fsvn-start-command-display 
+    (setq proc (fsvn-start-command-display
                 "delete" buffer
                 "--targets" targets
                 (if message
@@ -365,7 +365,7 @@ Keybindings:
   (fsvn-process-exit-handler proc event
     (when (= (process-exit-status proc) 0)
       (fsvn-parse-result-cmd-delete (current-buffer))
-      (fsvn-parasite-cleanup-buffers 
+      (fsvn-parasite-cleanup-buffers
        (process-get proc 'fsvn-parasite-cleanup-buffers)))))
 
 (defun fsvn-parasite-delete-brief-help ()

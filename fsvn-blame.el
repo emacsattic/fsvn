@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -46,9 +46,9 @@
     (font-lock-verbose)
     ))
 
-(defvar fsvn-blame-subwindow-font-lock-keywords 
+(defvar fsvn-blame-subwindow-font-lock-keywords
   (list
-   (list "^\\(\\(?:Revision\\|Date\\|Author\\):\\) \\(.*\\)" 
+   (list "^\\(\\(?:Revision\\|Date\\|Author\\):\\) \\(.*\\)"
          '(1 fsvn-header-key-face) '(2 fsvn-header-face))
    ))
 
@@ -127,11 +127,11 @@ Keybindings:
 
 (defun fsvn-blame-minor-cmd-read-with-range-args ()
   (list
-   (fsvn-completing-read-revision-range 
-    1 "HEAD" 
+   (fsvn-completing-read-revision-range
+    1 "HEAD"
     (fsvn-blame-buffer-urlrev))))
 
-(define-minor-mode fsvn-blame-minor-mode 
+(define-minor-mode fsvn-blame-minor-mode
   "Minor mode for visualized Subversion annotate/blame/praise interface.
 
 Keybindings: none
@@ -175,7 +175,7 @@ Keybindings: none
         (fsvn-blame-split-overlay ov start end)))))
 
 (defun fsvn-blame-split-overlay (ov start end)
-  (save-excursion 
+  (save-excursion
     (let ((ov-start (overlay-start ov))
           (ov-end (overlay-end ov))
           top-beg top-fin bottom-beg bottom-fin
@@ -238,7 +238,7 @@ Keybindings: none
       (fsvn-blame-tidy-up-subwindow)
     (let* ((overlay
             (catch 'found
-              (mapc 
+              (mapc
                (lambda (o)
                  (when (overlay-get o 'fsvn-blame-revision)
                    (throw 'found o)))
@@ -258,7 +258,7 @@ Keybindings: none
                  ((null data)
                   (if (null (fsvn-blame-get-processes target-buffer))
                       (fsvn-blame-subwindow-insert-message nil "Process exited.")
-                    (fsvn-blame-subwindow-insert-message 
+                    (fsvn-blame-subwindow-insert-message
                      0 (format "Progressing%s" (make-string (truncate (- (float-time) start)) ?.)))))
                  ((or (null overlay)
                       (null (setq rev (overlay-get overlay 'fsvn-blame-revision))))
@@ -271,7 +271,7 @@ Keybindings: none
                   (let ((entry (fsvn-blame-logs-find-logentry data rev))
                         msg date)
                     (setq msg (fsvn-xml-log->logentry=>msg$ entry))
-                    (setq date (format-time-string fsvn-generic-datetime-format 
+                    (setq date (format-time-string fsvn-generic-datetime-format
                                                    (fsvn-xml-log->logentry=>date$ entry)))
                     (insert (format "Revision: %d\n" rev))
                     (insert (format "Author: %s\n" (fsvn-xml-log->logentry=>author$ entry)))
@@ -328,7 +328,7 @@ elements of the list.
 
 a b => bbb bba bab baa abb aba aaa aab"
   (let (ret)
-    (mapc 
+    (mapc
      (lambda (a)
        (mapc
         (lambda (b)
@@ -377,7 +377,7 @@ a b => bbb bba bab baa abb aba aaa aab"
            ;; line added in wc
            ((assq wc-line diff-alist)
             (when flg
-              (fsvn-blame-create-overlay-internal 
+              (fsvn-blame-create-overlay-internal
                prev-end
                (line-beginning-position 0) prev-rev face-alist)
               (setq flg nil))

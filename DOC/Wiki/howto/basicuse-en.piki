@@ -25,7 +25,7 @@ fsvn create many buffers to output the svn command results. If you want to remov
 M-x fsvn-global-cleanup-buffer
 |<
 
-Sample of setting indicate a key settings to C-x v M-c 
+Sample of setting indicate a key settings to C-x v M-c
 
 ** Fsvn Browse
 

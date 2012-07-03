@@ -2,10 +2,10 @@
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -399,9 +399,9 @@ Keybindings:
                       (throw 'fsvn-electric-buffer-menu-select nil))
                     (let* ((start-point (point))
                            (first-form '(or fsvn-electric-start-point (point-min)))
-                           (last-form '(or fsvn-electric-end-point 
-                                           (progn 
-                                             (goto-char (1- (point-max))) 
+                           (last-form '(or fsvn-electric-end-point
+                                           (progn
+                                             (goto-char (1- (point-max)))
                                              (line-beginning-position))))
                            (first (eval first-form))
                            (last (eval last-form)))
@@ -419,7 +419,7 @@ Keybindings:
     select))
 
 (defun fsvn-electric-line-select-buffer-menu-looper (state condition)
-  (cond 
+  (cond
    ((and condition
          (not (memq (car condition) '(buffer-read-only
                                       end-of-buffer
@@ -441,7 +441,7 @@ Keybindings:
     (unless fsvn-electric-line-select-buffer-overlay
       (make-local-variable 'fsvn-electric-line-select-buffer-overlay)
       (setq fsvn-electric-line-select-buffer-overlay (make-overlay (point) (point))))
-    (move-overlay fsvn-electric-line-select-buffer-overlay 
+    (move-overlay fsvn-electric-line-select-buffer-overlay
                   (line-beginning-position)
                   (line-end-position))
     (overlay-put fsvn-electric-line-select-buffer-overlay 'face 'highlight)))
@@ -704,9 +704,9 @@ Elements of the alist are:
 ;;
 
 (defun fsvn-window-setting ()
-  (mapcar 
+  (mapcar
    (lambda (win)
-     (list win (window-buffer win))) 
+     (list win (window-buffer win)))
    (window-list)))
 
 (defun fsvn-window-cleanup (settings)
@@ -751,7 +751,7 @@ Elements of the alist are:
   :group 'fsvn)
 
 (defvar fsvn-ui-fancy-object-picture-alist nil)
-  
+
 (defun fsvn-ui-fancy-object-picture (color)
   (let ((cell (assoc color fsvn-ui-fancy-object-picture-alist)))
     (cond
@@ -871,7 +871,7 @@ static char * data[] = {
     "yellow")
    ((memq val '(conflicted incomplete))
     "violet")
-   (t 
+   (t
     "GreenYellow")))
 
 

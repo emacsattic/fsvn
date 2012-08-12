@@ -91,15 +91,16 @@ IGNORE-DOT-SVN non-nil means do not copy subversion meta directory (Probablly .s
 (defun fsvn-recursive-directory-files (directory)
   "List DIRECTORY files recursively ignoring `.svn' directory."
   (let (files)
-    (mapc
-     (lambda (file)
-       (cond
-        ((string= (fsvn-file-name-nondirectory file) (fsvn-meta-dir-name)))
-        ((fsvn-file-exact-directory-p file)
-         (setq files (append files (list file) (fsvn-recursive-directory-files file))))
-        (t
-         (setq files (append files (list file))))))
-     (directory-files directory t dired-re-no-dot))
+    (when (file-readable-p directory)
+      (mapc
+       (lambda (file)
+         (cond
+          ((string= (fsvn-file-name-nondirectory file) (fsvn-meta-dir-name)))
+          ((fsvn-file-exact-directory-p file)
+           (setq files (append files (list file) (fsvn-recursive-directory-files file))))
+          (t
+           (setq files (append files (list file))))))
+       (directory-files directory t dired-re-no-dot)))
     files))
 
 (defun fsvn-guessed-recursive-count (directory threshold)

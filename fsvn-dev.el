@@ -112,42 +112,64 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 
 
 
-;;TODO make async
-;; cleanup buffer
-(defun fsvn-log-list-diff-search-backward (regexp)
+(defvar fsvn-log-list-diff-searched nil)
+
+(add-to-list 'fsvn-log-list-buffer-local-variables
+             '(fsvn-log-list-diff-searched))
+
+(defun fsvn-log-list-diff-search-backward (regexp &optional fuzzy)
+  "Search REGEXP current log list match to diff between two revision.
+Optional arg FUZZY non-nil means match to all diff message."
   (interactive
-   (list (fsvn-log-list-read-search-regexp)))
-  (catch 'found
-    (let (rev)
-      (while (and (setq rev (fsvn-log-list-point-revision))
-                  (not (eobp)))
-        (message "Searching revision %s..." rev)
-        (let* ((buffers (buffer-list))
-               (proc (fsvn-log-list-diff-previous))
-               (buffer (process-buffer proc)))
-          (while (not (memq (process-status proc) '(exit signal)))
-            (sit-for 0.2))
-          ;;TOOD restrict to "^[+-]" ?
-          ;;TODO log message too? sibling filename too?
-          (when (buffer-live-p buffer)
-            (save-selected-window
-              (select-window (get-buffer-window buffer))
-              (goto-char (point-min))
-              (when (re-search-forward regexp nil t)
-                ;; colorize
-                (let ((ov (make-overlay (match-beginning 0) (match-end 0))))
-                  (overlay-put ov 'face fsvn-match-face))
-                (message "Match found.")
-                ;;TODO delete overlay?
-                ;; (let ((next-event
-                ;;        (let ((inhibit-quit t))
-                ;;          (read-event))))
-                ;;   (setq unread-command-events (list next-event)))
-                (throw 'found t)))
-            (unless (memq buffer buffers)
-              (kill-buffer buffer)))
-          (fsvn-log-list-next-line))))
-    (message "Not found.")))
+   (list
+    (fsvn-log-list-read-search-regexp)
+    current-prefix-arg))
+  (let ((targetp (if fuzzy
+                     (lambda () t)
+                   (lambda ()
+                     (save-excursion
+                       (forward-line 0)
+                       (save-match-data
+                         (looking-at "^[+-]"))))))
+        rev)
+    ;; next line to continue searching
+    (when (equal fsvn-log-list-diff-searched regexp)
+      (fsvn-log-list-next-line))
+    (if (catch 'found
+          (while (and (setq rev (fsvn-log-list-point-revision))
+                      (not (eobp)))
+            (message "Searching revision %s..." rev)
+            (let* ((buffers (buffer-list)) ; preserve initial buffers
+                   (proc (fsvn-log-list-diff-previous))
+                   (buffer (process-buffer proc)))
+              ;; wait until diff finishes.
+              (while (not (memq (process-status proc) '(exit signal)))
+                (sit-for 0.1))
+              ;;TODO log message too? sibling filename too?
+              (when (buffer-live-p buffer)
+                (save-selected-window
+                  (select-window (get-buffer-window buffer))
+                  (goto-char (point-min))
+                  (while (re-search-forward regexp nil t)
+                    (when (funcall targetp)
+                      ;; colorize
+                      (let ((ov (make-overlay (match-beginning 0) (match-end 0))))
+                        (overlay-put ov 'face fsvn-match-face))
+                      ;;TODO delete overlay?
+                      ;; (let ((next-event
+                      ;;        (let ((inhibit-quit t))
+                      ;;          (read-event))))
+                      ;;   (setq unread-command-events (list next-event)))
+                      (throw 'found t))))
+                ;; cleanup buffer if buffer initially not exists.
+                (unless (memq buffer buffers)
+                  (kill-buffer buffer)))
+              (fsvn-log-list-next-line))))
+        (progn
+          (setq fsvn-log-list-diff-searched regexp)
+          (message "Match found."))
+      (message "Not found.")
+      (setq fsvn-log-list-diff-searched nil))))
 
 
 

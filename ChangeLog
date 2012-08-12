@@ -1,3 +1,7 @@
+2012-08-12  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: failed commit when working set have unreadable directory.
+
 2012-04-04  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Note: remove trailing spaces

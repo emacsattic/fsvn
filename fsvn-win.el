@@ -47,8 +47,19 @@
   "TortoiseSVN"
   :group 'tortoise)
 
+(defun tortoise-search-default-program (name)
+  (catch 'found
+    (mapc
+     (lambda (progdir)
+       (let* ((dir (expand-file-name "TortoiseSVN/bin" progdir))
+              (file (expand-file-name name dir)))
+         (when (file-executable-p file)
+           (throw 'found file))))
+     (delq nil (list (getenv "ProgramFiles") (getenv "ProgramW6432"))))
+    nil))
+
 (defcustom tortoise-interface-program
-  "c:/Program Files/TortoiseSVN/bin/TortoiseProc.exe"
+  (tortoise-search-default-program "TortoiseProc.exe")
   "TortoiseSVN main program."
   :group 'tortoise
   :type 'file)
@@ -66,7 +77,7 @@
       (apply 'call-process tortoise-interface-program nil 0 nil args))))
 
 (defcustom tortoise-merge-program
-  "c:/Program Files/TortoiseSVN/bin/TortoiseMerge.exe"
+  (tortoise-search-default-program "TortoiseMerge.exe")
   "TortoiseSVN visualized merge program."
   :group 'tortoise)
 

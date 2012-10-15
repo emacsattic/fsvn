@@ -48,17 +48,18 @@ clean:
 	-$(RM) $(GOMI)
 
 release: archive single-file package
-	$(RM) -f $(ARCHIVE_DIR_PREFIX)/$(PACKAGE)-$(VERSION).tar.bz2 $(ARCHIVE_DIR_PREFIX)/$(PACKAGE)-$(VERSION).tar.gz
+	$(RM) -f $(ARCHIVE_DIR_PREFIX)/$(PACKAGE)-$(VERSION).tar.bz2 $(ARCHIVE_DIR_PREFIX)/$(PACKAGE)-$(VERSION).tar.gz $(ARCHIVE_DIR_PREFIX)/$(PACKAGE)-$(VERSION).tar.xz
 	$(RM) -f $(ARCHIVE_DIR_PREFIX)/fsvn.el
 	$(RM) -f $(ARCHIVE_DIR_PREFIX)/fsvn.el.bz2
 	$(RM) -f $(ARCHIVE_DIR_PREFIX)/fsvn.el.gz
-	mv /tmp/$(PACKAGE)-$(VERSION).tar.bz2 /tmp/$(PACKAGE)-$(VERSION).tar.gz /tmp/$(PACKAGE)-$(VERSION).tar $(ARCHIVE_DIR_PREFIX)/
+	mv /tmp/$(PACKAGE)-$(VERSION).tar.bz2 /tmp/$(PACKAGE)-$(VERSION).tar.gz /tmp/$(PACKAGE)-$(VERSION).tar.xz /tmp/$(PACKAGE)-$(VERSION).tar $(ARCHIVE_DIR_PREFIX)/
 	mv fsvn.el.tmp $(ARCHIVE_DIR_PREFIX)/fsvn.el
 	bzip2 --keep $(ARCHIVE_DIR_PREFIX)/fsvn.el
 	gzip $(ARCHIVE_DIR_PREFIX)/fsvn.el
 
 archive: prepare
 	cd /tmp ; \
+	tar cJf $(PACKAGE)-$(VERSION).tar.xz $(PACKAGE)-$(VERSION) ; \
 	tar cjf $(PACKAGE)-$(VERSION).tar.bz2 $(PACKAGE)-$(VERSION) ; \
 	tar czf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
 

@@ -1,3 +1,19 @@
+2012-10-09  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: wrong byte size calculation.
+
+2012-09-26  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Improve: `lm-verify' says keywords are invalid.
+
+2012-09-10  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Improve: tortoise wow64 directory support
+
+2012-08-28  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Improve: support .xz archive
+
 2012-08-12  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: failed commit when working set have unreadable directory.

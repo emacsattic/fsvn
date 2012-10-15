@@ -27,7 +27,7 @@
     (match-string 1 html)))
 
 (defun fsvn-publish-html-file (piki)
-  (let ((path (relative-file-name piki fsvn-publish-wiki-directory)))
+  (let ((path (file-relative-name piki fsvn-publish-wiki-directory)))
     (unless (string-match "/\\([^/]+\\)-\\(..\\)\\.piki$" piki)
       (error "Invalid filename %s" piki))
     (let ((name (match-string 1 piki))

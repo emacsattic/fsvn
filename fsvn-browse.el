@@ -2290,12 +2290,12 @@ If that file indicate multiple files, electric prompt these files.
 Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 "
   (interactive (fsvn-browse-cmd-read-smart-move-this))
-  (let ((strategies
+  (let ((strategy
          (mapcar
           (lambda (item)
             (list 'fsvn-popup-start-copy/move-process "move" (car item) (cdr item) args))
           alist)))
-    (fsvn-async-invoke strategies)))
+    (fsvn-async-invoke strategy)))
 
 (defun fsvn-browse-smart-copy-this (alist &optional args)
   "Execute `copy' to point file.
@@ -2303,12 +2303,12 @@ If that file indicate multiple files, electric prompt these files.
 Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 "
   (interactive (fsvn-browse-cmd-read-smart-copy-this))
-  (let ((strategies
+  (let ((strategy
          (mapcar
           (lambda (item)
             (list 'fsvn-popup-start-copy/move-process "copy" (car item) (cdr item) args))
           alist)))
-    (fsvn-async-invoke strategies)))
+    (fsvn-async-invoke strategy)))
 
 (defun fsvn-browse-create-branch (urlrev branch-url &optional args)
   "Create branch executing `copy'.

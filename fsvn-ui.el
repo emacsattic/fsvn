@@ -690,12 +690,14 @@ Elements of the alist are:
 (defun fsvn-generic-format-file-size (size &optional length)
   (fsvn-string-lpad
    (cond
-    ((< size 1000000)
+    ((not (numberp size))
+     "Unsupport")
+    ((<= size 9999999)
      (number-to-string size))
-    ((< size 1000000000.0)
-     (format "%0.1fM" (/ size 1000000.0)))
+    ((< size 1073741824.0)
+     (format "%0.1fM" (/ size 1048576)))
     (t
-     (format "%0.1fG" (/ size 1000000000.0))))
+     (format "%0.1fG" (/ size 1073741824.0))))
    (or length 10)))
 
 

@@ -1860,17 +1860,16 @@ This implements consider svn:ignored directory."
 
 (defun fsvn-browse-cmd-read-mergeinfo ()
   (fsvn-browse-cmd-wc-only
-   (let ((args (fsvn-cmd-read-subcommand-args "mergeinfo" fsvn-default-args-mergeinfo)))
+   (let ((args (fsvn-cmd-read-subcommand-args
+                "mergeinfo" fsvn-default-args-mergeinfo)))
      (list args))))
 
-(defun fsvn-browse-cmd-read-branch/tag (prompt default-dirname)
-  (let ((repos-url (fsvn-browse-current-repository-url))
-        dest-url args)
-    (setq repos-url (fsvn-completing-read-urlrev "Source URL: "  repos-url))
-    (when (string-match "^\\(.*\\)/trunk" repos-url)
-      (setq dest-url (concat (match-string 1 repos-url) "/" default-dirname "/")))
-    (setq dest-url (fsvn-completing-read-url (format "New %s URL: " prompt) dest-url t))
-    (setq args (fsvn-cmd-read-subcommand-args "copy" fsvn-default-args-copy))
+(defun fsvn-browse-cmd-read-creating-branch/tag (partial-prompt default-dirname)
+  (let* ((repos-url (fsvn-browse-current-repository-url))
+         (repos-url (fsvn-completing-read-urlrev "Source URL: "  repos-url))
+         (dest-url (fsvn-read-branch/tag
+                    repos-url default-dirname (format "New %s URL: " partial-prompt)))
+         (args (fsvn-cmd-read-subcommand-args "copy" fsvn-default-args-copy)))
     (list repos-url dest-url args)))
 
 (defun fsvn-browse-cmd-read-upgrade-source-tree-args ()
@@ -2314,14 +2313,14 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
   "Create branch executing `copy'.
 Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 "
-  (interactive (fsvn-browse-cmd-read-branch/tag "Branch" "branches"))
+  (interactive (fsvn-browse-cmd-read-creating-branch/tag "Branch" "branches"))
   (fsvn-browse-copy-this-in-repository urlrev branch-url args))
 
 (defun fsvn-browse-create-tag (urlrev tag-url &optional args)
   "Create tag executing `copy'.
 Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
 "
-  (interactive (fsvn-browse-cmd-read-branch/tag "Tag" "tags"))
+  (interactive (fsvn-browse-cmd-read-creating-branch/tag "Tag" "tags"))
   (fsvn-browse-copy-this-in-repository urlrev tag-url args))
 
 (defun fsvn-browse-copy-this-in-repository (from-url to-url &optional args)

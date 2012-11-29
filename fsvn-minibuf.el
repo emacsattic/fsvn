@@ -96,9 +96,10 @@ The value of DEFAULT is not a number, allow to enter a nil value."
 (defun fsvn-read-propname (file)
   (let (propname)
     (while (null propname)
-      (setq propname (completing-read "SVN Property: "
-                                      (fsvn-propname-completion-alist file)
-                                      nil nil nil 'fsvn-read-propname-history))
+      (setq propname (completing-read
+                      (format "SVN Property (%s): " file)
+                      (fsvn-propname-completion-alist file)
+                      nil nil nil 'fsvn-read-propname-history))
       (unless (fsvn-svn-valid-propname-p propname)
         (let (message-log-max)
           (message "%s is not valid svn property name." propname)
@@ -125,6 +126,12 @@ The value of DEFAULT is not a number, allow to enter a nil value."
     (when (string= ret "")
       (error "Accept arg must be selected"))
     ret))
+
+(defun fsvn-read-branch/tag (url dirname prompt)
+  (let ((default url))
+    (when (string-match "^\\(.*\\)/trunk" url)
+      (setq default (concat (match-string 1 url) "/" dirname "/")))
+    (fsvn-completing-read-url prompt default t)))
 
 
 

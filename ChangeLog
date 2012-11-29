@@ -1,3 +1,13 @@
+2012-11-22  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Change: Unsupport svn 1.5.x
+
+	* Refactor: branch/tag for new implements.
+
+2012-10-31  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: enable revert directory.
+
 2012-10-09  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: wrong byte size calculation.

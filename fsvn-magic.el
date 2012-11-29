@@ -32,7 +32,8 @@
 (defconst fsvn-magic-file-name-regexp
   (let ((top "\\`/fsvn")
         tmp)
-    (concat top "@" "\\(" "HEAD" "\\|" "[0-9]+" "\\|" fsvn-revision-date-regexp "\\)" "/")))
+    (concat top "@" "\\(" "HEAD" "\\|" "[0-9]+" "\\|"
+            fsvn-revision-date-regexp "\\)" "/")))
 
 (defconst fsvn-magic-handler-alist
   '(
@@ -623,7 +624,8 @@ local (non-wc) -> remote : svn add -> svn commit
            ((fsvn-url-repository-p to)
             (setq to (fsvn-urlrev-url to))
             (fsvn-call-command-discard "move" from to
-                                       "--message" (fsvn-config-magic-remote-commit-message to)))
+                                       "--message"
+                                       (fsvn-config-magic-remote-commit-message to)))
            ((fsvn-file-versioned-directory-p to)
             (fsvn-call-command-discard "move" from to))
            (t
@@ -638,7 +640,8 @@ local (non-wc) -> remote : svn add -> svn commit
         (signal 'file-error (list "Move error.")))
        ((fsvn-file-versioned-directory-p from)
         (fsvn-call-command-discard "move" file to
-                                   "--message" (fsvn-config-magic-remote-commit-message to)))
+                                   "--message"
+                                   (fsvn-config-magic-remote-commit-message to)))
        (t
         (fsvn-asap-add-file file (fsvn-url-dirname to))
         (delete-file file))))))
@@ -772,7 +775,8 @@ local (non-wc) -> remote : svn add -> svn commit
     (fsvn-xml-info->entry.revision info))))
 
 (defun fsvn-magic-info-pseudo-device-number (info)
-  (fsvn-magic-pseudo-hash-number (fsvn-xml-info->entry=>repository=>root$ info)))
+  (fsvn-magic-pseudo-hash-number
+   (fsvn-xml-info->entry=>repository=>root$ info)))
 
 (defun fsvn-magic-split-file-name (file)
   (split-string file "/"))
@@ -793,7 +797,9 @@ local (non-wc) -> remote : svn add -> svn commit
 
 ;;TODO hit -> get
 (defun fsvn-magic-hit-cache (key url)
-  (cdr (fsvn-string-assoc (fsvn-urlrev-directory-file-name url) (cdr (assq key fsvn-magic-cache)))))
+  (cdr (fsvn-string-assoc
+        (fsvn-urlrev-directory-file-name url)
+        (cdr (assq key fsvn-magic-cache)))))
 
 (defun fsvn-magic-push-cache (key url value)
   (let (cache cache-value)
@@ -831,7 +837,8 @@ local (non-wc) -> remote : svn add -> svn commit
      entries)))
 
 (defun fsvn-magic-get-info-entry (url)
-  (let ((info (fsvn-magic-use-cache-form fsvn-magic-get-info-entry fsvn-get-info-entry url)))
+  (let ((info (fsvn-magic-use-cache-form
+               fsvn-magic-get-info-entry fsvn-get-info-entry url)))
     ;;FIXME patch work
     (let ((root (fsvn-xml-info->entry=>repository=>root$ info)))
       (when root
@@ -841,8 +848,10 @@ local (non-wc) -> remote : svn add -> svn commit
     info))
 
 (defun fsvn-magic-get-list/info-entry (url)
-  "`fsvn-magic-get-ls-entry' faster than `fsvn-magic-get-info-entry' because of cache hit rate is high.
-But `fsvn-magic-get-ls-entry' is not perfect for under repository root directories. "
+  "`fsvn-magic-get-ls-entry' faster than `fsvn-magic-get-info-entry'
+because of cache hit rate is high.
+But `fsvn-magic-get-ls-entry' is not perfect for under repository
+root directories. "
   (or (fsvn-magic-get-ls-entry url)
       (fsvn-magic-get-info-entry url)))
 
@@ -904,7 +913,8 @@ But `fsvn-magic-get-ls-entry' is not perfect for under repository root directori
 (defadvice after-find-file
   (around fsvn-after-find-file () disable)
   (let ((find-file-hook find-file-hook))
-    (when (and buffer-file-name (fsvn-magic-file-name-absolute-p buffer-file-name))
+    (when (and buffer-file-name
+               (fsvn-magic-file-name-absolute-p buffer-file-name))
       (setq find-file-hook nil))
     ad-do-it))
 

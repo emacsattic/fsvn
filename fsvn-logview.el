@@ -687,8 +687,6 @@ from is marked point, to is current point."
         (urlrev (fsvn-log-list-cmd-urlrev)))
     (unless (fsvn-url-local-p path)
       (error "This log has no local relation"))
-    (when (file-directory-p path)
-      (error "Cannot revert directory"))
     (unless (y-or-n-p (format
                        "Revert `%s' to revision %s? "
                        (fsvn-file-name-nondirectory path)

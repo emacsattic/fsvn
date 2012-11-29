@@ -72,13 +72,16 @@
 
 ;; xml definition
 
+(defconst fsvn-xml-proplist-target-dtd-alist
+  `(target
+    ((path . fsvn-expand-file))
+    (property
+     ((name . identity)))))
+
 (defconst fsvn-xml-proplist-dtd-alist
-  '(properties
+  `(properties
     nil
-    (target
-     ((path . fsvn-expand-file))
-     (property
-      ((name . identity))))
+    ,fsvn-xml-proplist-target-dtd-alist
     (revprops
      ((rev . string-to-number))
      (property
@@ -616,6 +619,10 @@ if dtd is list call this function recursively.
     (fsvn-xml-get-children
      (fsvn-xml-processor xml fsvn-xml-log-dtd-alist)
      'logentry)))
+
+(defun fsvn-xml-parse-proplist-item (start end)
+  (let ((xml (fsvn-xml-parse-region start end)))
+    (fsvn-xml-processor xml fsvn-xml-proplist-target-dtd-alist)))
 
 (defun fsvn-xml-parse-proplist ()
   (let ((xml (fsvn-xml-parse-region (point-min) (point-max))))

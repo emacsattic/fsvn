@@ -253,6 +253,16 @@ Keybindings:
       (fsvn-quit "Discard postponed"))
     (fsvn-propedit-buffer-discard-changes)))
 
+(defun fsvn-proplist-current-filename ()
+  (save-excursion
+    (forward-line 0)
+    (cond
+     ((looking-at fsvn-proplist-re-header)
+      (match-string 2))
+     ((re-search-backward fsvn-proplist-re-header nil t)
+      ;; to get fsvn-revision-property
+      (match-string 2)))))
+
 (defun fsvn-proplist-current-propname ()
   (save-excursion
     (when (fsvn-proplist-move-to-propname)
@@ -275,6 +285,7 @@ Keybindings:
 (defun fsvn-proplist-revert-buffer (ignore-auto noconfirm)
   (let ((propname (fsvn-proplist-current-propname))
         (opoint (point)))
+    ;;TODO
     (fsvn-proplist-draw-list fsvn-propview-target-urlrev)
     (or (and propname
              (fsvn-proplist-goto-propname propname))
@@ -282,7 +293,7 @@ Keybindings:
     (fsvn-proplist-draw-value (fsvn-proplist-current-propname))))
 
 (defun fsvn-proplist-draw-value (propname)
-  (let ((file fsvn-propview-target-urlrev)
+  (let ((file (fsvn-proplist-current-filename))
         (prev-config fsvn-previous-window-configuration)
         (buffer (fsvn-propedit-get-buffer))
         (dirp fsvn-propview-target-directory-p)
@@ -320,12 +331,12 @@ Keybindings:
 (defun fsvn-proplist-next-line (&optional arg)
   (interactive "p")
   (fsvn-proplist-move-line
-   (forward-line arg)))
+   (fsvn-forward-property 'fsvn-propname arg)))
 
 (defun fsvn-proplist-previous-line (&optional arg)
   (interactive "p")
   (fsvn-proplist-move-line
-   (forward-line (- arg))))
+   (fsvn-backward-property 'fsvn-propname arg)))
 
 (defun fsvn-proplist-mark-delete (&optional recursive)
   "Put delete mark."
@@ -366,9 +377,9 @@ Keybindings:
 (defun fsvn-proplist-add-property (&optional recurse)
   (interactive "P")
   (fsvn-proplist-wc-only
-   (let ((propname (fsvn-read-propname fsvn-propview-target-urlrev))
-         (file fsvn-propview-target-urlrev)
-         ret)
+   (let* ((file (fsvn-proplist-current-filename))
+          (propname (fsvn-read-propname file))
+          ret)
      (when (member propname (fsvn-proplist-get-proplist file))
        (error "Property `%s' is already exists" propname))
      (fsvn-proplist-draw-value propname)
@@ -383,7 +394,7 @@ Keybindings:
 (defun fsvn-proplist-do-marked-execute ()
   (interactive)
   (fsvn-proplist-wc-only
-   (let ((file fsvn-propview-target-urlrev)
+   (let ((file (fsvn-proplist-current-filename))
          (fsvn-call-process-buffer (fsvn-popup-result-create-buffer))
          value-file buffer-read-only)
      (unwind-protect

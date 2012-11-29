@@ -732,6 +732,63 @@ Elements of the alist are:
 
 
 ;;
+;; property moving handler
+;;
+
+;; 1. prop exists
+;;  NO next -> (point-max)
+;;  next and prop exists -> next
+;;  next and prop NOT exists -> next or (point-max)
+;; 2. prop not exists
+;;  NO next -> (point-max)
+;;  next and prop exists (must be there!)
+
+(defun fsvn-forward-property (prop n)
+  (catch 'done
+    (dotimes (i n)
+      (let ((next (next-single-property-change (point) prop)))
+        (unless next
+          (goto-char (point-max))
+          (throw 'done i))
+        (cond
+         ((or (not (get-text-property (point) prop))
+              (get-text-property next prop))
+          (goto-char next))
+         (t
+          (let ((next2 (next-single-property-change next prop)))
+            (unless next2
+              (goto-char (point-max))
+              (throw 'done i))
+            (goto-char next2))))))
+    n))
+
+(defun fsvn-backward-property (prop n)
+  (catch 'done
+    (dotimes (i n)
+      (let ((prev (previous-single-property-change (point) prop)))
+        (unless prev
+          (goto-char (point-min))
+          (throw 'done i))
+        (let ((pval (get-text-property prev prop)))
+          (cond
+           ((or (not pval) (eq (get-text-property (point) prop) pval))
+            (let ((prev2 (previous-single-property-change prev prop)))
+              (unless prev2
+                (goto-char (point-min))
+                (throw 'done i))
+              (if (get-text-property prev2 prop)
+                  (goto-char prev2)
+                (let ((prev3 (previous-single-property-change prev2 prop)))
+                  (unless prev3
+                    (goto-char (point-min))
+                    (throw 'done i))
+                  (goto-char prev3)))))
+           (t
+            (goto-char prev))))))))
+
+
+
+;;
 ;; mode line status (from psvn.el)
 ;;
 

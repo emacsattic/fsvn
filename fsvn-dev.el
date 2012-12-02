@@ -569,46 +569,15 @@ How to send a bug report:
 
 
 
-;;TODO
-(defvar fsvn-proplist2-font-lock-keywords nil)
-
 (defconst fsvn-proplist2-buffer-local-variables
   '(
     (font-lock-defaults . '(fsvn-proplist-font-lock-keywords t nil nil beginning-of-line))
+    ;;TODO
     (revert-buffer-function . 'fsvn-proplist2-revert-buffer)
     (fsvn-buffer-repos-info)
     ;; TODO
     (fsvn-proplist-target-mode)
     ))
-
-(defvar fsvn-proplist2-mode-map nil)
-(unless fsvn-proplist2-mode-map
-  (setq fsvn-proplist2-mode-map
-        (let ((map (make-sparse-keymap)))
-          (suppress-keymap map)
-
-          (fsvn-readonly-mode-keymap map)
-
-          ;;TODO
-          ;; (define-key map "\C-c\C-c" 'fsvn-proplist-do-marked-execute)
-          ;; (define-key map "\C-c\C-k" 'fsvn-restore-previous-window-setting)
-          ;; (define-key map "\C-c\C-l" 'fsvn-restore-default-window-setting)
-          ;; (define-key map "\C-c\C-o" 'fsvn-proplist-propedit-window)
-          ;; (define-key map "\C-m" 'fsvn-proplist-show-value)
-          ;; (define-key map "\C-n" 'fsvn-proplist-next-line)
-          ;; (define-key map "\C-p" 'fsvn-proplist-previous-line)
-          ;; (define-key map "a" 'fsvn-proplist-add-property)
-          ;; (define-key map "d" 'fsvn-proplist-mark-delete)
-          ;; (define-key map "e" 'fsvn-proplist-edit-property)
-          ;; (define-key map "g" 'revert-buffer)
-          ;; (define-key map "n" 'fsvn-proplist-next-line)
-          ;; (define-key map "p" 'fsvn-proplist-previous-line)
-          ;; (define-key map "q" 'fsvn-restore-previous-window-setting)
-          ;; (define-key map "r" 'fsvn-proplist-mark-recursive)
-          ;; (define-key map "u" 'fsvn-proplist-mark-unmark)
-          ;; (define-key map "x" 'fsvn-proplist-do-marked-execute)
-
-          map)))
 
 (defun fsvn-proplist2-mode ()
   "Major mode for browsing Subversion properties.
@@ -620,41 +589,41 @@ Keybindings:
 "
   (fsvn-global-initialize-mode)
   (use-local-map fsvn-proplist-mode-map)
-  (setq major-mode 'fsvn-proplist2-mode)
+  (setq major-mode 'fsvn-proplist-mode)
   (setq mode-name "Fsvn Property List")
   (setq truncate-lines t)
   (setq buffer-undo-list t)
   (fsvn-make-buffer-variables fsvn-proplist2-buffer-local-variables)
-  (fsvn-proplist2-setup-mode-line)
-  (run-mode-hooks 'fsvn-proplist2-mode-hook))
+  (fsvn-proplist-setup-mode-line)
+  (run-mode-hooks 'fsvn-proplist-mode-hook))
 
-(defconst fsvn-proplist2-line-process
+(defconst fsvn-proplist-line-process
   '(
-    (fsvn-proplist2-main-process " Getting properties... ")
+    (fsvn-proplist-main-process " Getting properties... ")
     ))
 
-(defun fsvn-proplist2-setup-mode-line ()
-  (or (assq 'fsvn-proplist2-main-process mode-line-process)
+(defun fsvn-proplist-setup-mode-line ()
+  (or (assq 'fsvn-proplist-main-process mode-line-process)
       (setq mode-line-process
-            (append fsvn-proplist2-line-process mode-line-process))))
+            (append fsvn-proplist-line-process mode-line-process))))
 
-(defun fsvn-proplist2-start-process ()
+(defun fsvn-proplist-start-process ()
   (let* ((buffer (fsvn-make-temp-buffer))
          (proc (fsvn-start-command "proplist" buffer
                                    "--xml"
                                    "--recursive"
                                    ".")))
-    (set-process-filter proc 'fsvn-proplist2-process-filter)
-    (set-process-sentinel proc 'fsvn-proplist2-process-sentinel)
-    (process-put proc 'fsvn-proplist2-buffer (current-buffer))
-    (setq fsvn-proplist2-main-process proc)
+    (set-process-filter proc 'fsvn-proplist-process-filter)
+    (set-process-sentinel proc 'fsvn-proplist-process-sentinel)
+    (process-put proc 'fsvn-proplist-buffer (current-buffer))
+    (setq fsvn-proplist-main-process proc)
     proc))
 
 
-(defvar fsvn-proplist2-main-process nil)
+(defvar fsvn-proplist-main-process nil)
 ;;TODO local
 
-(defun fsvn-proplist2-process-filter (proc event)
+(defun fsvn-proplist-process-filter (proc event)
   (fsvn-process-event-handler proc event
     (goto-char (process-mark proc))
     (insert-before-markers event)
@@ -668,24 +637,24 @@ Keybindings:
         (setq targets
               (cons (fsvn-xml-parse-proplist-item start end) targets))
         (delete-region (point-min) end))
-      (let ((buffer (process-get proc 'fsvn-proplist2-buffer)))
+      (let ((buffer (process-get proc 'fsvn-proplist-buffer)))
         (when (buffer-live-p buffer)
           (with-current-buffer buffer
             ;; avoid when other process is running.
-            (when (eq fsvn-proplist2-main-process proc)
-              (fsvn-proplist2-async-draw-targets targets))))))))
+            (when (eq fsvn-proplist-main-process proc)
+              (fsvn-proplist-async-draw-targets targets))))))))
 
-(defun fsvn-proplist2-process-sentinel (proc event)
+(defun fsvn-proplist-process-sentinel (proc event)
   (fsvn-process-exit-handler proc event
-    (let ((buffer (process-get proc 'fsvn-proplist2-buffer)))
+    (let ((buffer (process-get proc 'fsvn-proplist-buffer)))
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
-          (setq fsvn-proplist2-main-process nil))))
+          (setq fsvn-proplist-main-process nil))))
     (kill-buffer (current-buffer))))
 
 
-(defun fsvn-proplist2-async-draw-targets (targets)
-  (let* ((proc fsvn-proplist2-main-process)
+(defun fsvn-proplist-async-draw-targets (targets)
+  (let* ((proc fsvn-proplist-main-process)
          buffer-read-only)
     (save-excursion
       (goto-char (point-max))
@@ -698,7 +667,6 @@ Keybindings:
             (fsvn-proplist-insert-propname name)))
         (insert "\n")))
     (set-buffer-modified-p nil)))
-
 
 (defun fsvn-open-propview2-mode (info working-dir)
   (let ((win-configure (current-window-configuration)))
@@ -716,9 +684,29 @@ Keybindings:
       (fsvn-proplist-setup-window)
       (setq fsvn-default-window-configuration (current-window-configuration))
       (setq buffer-read-only t)
-      (fsvn-proplist2-start-process)
-      (run-hooks 'fsvn-proplist2-mode-prepared-hook))
+      (fsvn-proplist-start-process)
+      (run-hooks 'fsvn-proplist-mode-prepared-hook))
     (switch-to-buffer (fsvn-proplist-get-buffer))))
+
+
+(defun fsvn-browse-propview2-mode (file)
+  (let ((info fsvn-buffer-repos-info)
+        (working-dir
+         (if (fsvn-url-local-p file)
+             (fsvn-browse-current-directory-url)
+           (fsvn-browse-current-magic-directory))))
+    (fsvn-open-propview2-mode info working-dir)))
+
+(defun fsvn-browse-propview2-path ()
+  "Execute `proplist' by `fsvn-proplist-mode' to current directory."
+  (interactive)
+  (fsvn-browse-propview2-mode
+   (fsvn-browse-current-directory-url)))
+
+(add-hook 'fsvn-browse-mode-hook
+          (lambda ()
+            (define-key fsvn-browse-mode-map "\C-cP" 'fsvn-browse-propview2-path)))
+
 
 
 ;; background gardian

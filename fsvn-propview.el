@@ -26,7 +26,7 @@
 
 
 (fsvn-defstruct proplist-prop
-  name mark recursive-p)
+  file name mark recursive-p)
 
 (defconst fsvn-proplist-re-header
   "^ \\(Properties on\\) \\(.+\\)")
@@ -212,6 +212,7 @@ Keybindings:
           (setq col1 (match-string 1))
           (setq col2 (match-string 2))
           (setq struct (fsvn-struct-proplist-prop-make
+                        :file (fsvn-proplist-current-filename)
                         :name (fsvn-proplist-current-propname)
                         :mark (string-to-char col1)
                         :recursive-p (eq (string-to-char col2) fsvn-proplist-recursive-mark-char)))
@@ -285,7 +286,7 @@ Keybindings:
 (defun fsvn-proplist-revert-buffer (ignore-auto noconfirm)
   (let ((propname (fsvn-proplist-current-propname))
         (opoint (point)))
-    ;;TODO
+    ;; TODO
     (fsvn-proplist-draw-list fsvn-propview-target-urlrev)
     (or (and propname
              (fsvn-proplist-goto-propname propname))
@@ -394,22 +395,22 @@ Keybindings:
 (defun fsvn-proplist-do-marked-execute ()
   (interactive)
   (fsvn-proplist-wc-only
-   (let ((file (fsvn-proplist-current-filename))
-         (fsvn-call-process-buffer (fsvn-popup-result-create-buffer))
+   (let ((fsvn-call-process-buffer (fsvn-popup-result-create-buffer))
          value-file buffer-read-only)
      (unwind-protect
          (mapc
-          (lambda (prop)
-            (let ((propname (fsvn-struct-proplist-prop-get-name prop)))
+          (lambda (info)
+            (let ((file (fsvn-struct-proplist-prop-get-file info))
+                  (propname (fsvn-struct-proplist-prop-get-name info)))
               (cond
-               ((eq (fsvn-struct-proplist-prop-get-mark prop) fsvn-mark-delete-char)
+               ((eq (fsvn-struct-proplist-prop-get-mark info) fsvn-mark-delete-char)
                 (fsvn-popup-call-process
                  "propdel" propname
-                 (when (fsvn-struct-proplist-prop-get-recursive-p prop)
+                 (when (fsvn-struct-proplist-prop-get-recursive-p info)
                    "--recursive")
                  file)
                 (fsvn-proplist-delete-entry propname))
-               ((fsvn-struct-proplist-prop-get-recursive-p prop)
+               ((fsvn-struct-proplist-prop-get-recursive-p info)
                 (unless value-file
                   (setq value-file (fsvn-get-propget-file file propname)))
                 (fsvn-popup-call-process

@@ -2237,9 +2237,12 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
   "Execute `move' from SRC-FILE at current point to DEST-FILE.
 Same as `fsvn-browse-move-this' but allows you to DEST-FILE existence.
 This means DEST-FILE contents will be stashed and finally restored.
-This is useful for integrating other source management.
+This is useful for integrating with other source management.
 "
   (interactive (fsvn-browse-cmd-read-move-this))
+  ;; restore file if is deleted by other process
+  (unless (file-exists-p src-file)
+    (fsvn-revert-file src-file t))
   (if (not (file-exists-p dest-file))
       (apply 'fsvn-browse-move-this src-file dest-file args)
     (let (tmpfile)
@@ -2270,18 +2273,25 @@ This means DEST-FILE contents will be stashed and finally restored.
 This is useful for integrating other source management.
 "
   (interactive (fsvn-browse-cmd-read-copy-this))
-  (if (not (file-exists-p dest-file))
-      (apply 'fsvn-browse-copy-this src-file dest-file args)
-    (let (tmpfile)
-      (setq tmpfile (fsvn-make-temp-filename src-file))
-      (rename-file dest-file tmpfile t)
-      (unwind-protect
-          (fsvn-popup-call-process "copy" (list src-file) dest-file args)
-        (cond
-         ((fsvn-file-exact-directory-p tmpfile)
-          (fsvn-copy-directory tmpfile dest-file))
-         (t
-          (rename-file tmpfile dest-file t)))))))
+  ;; restore file if is deleted by other process
+  (let (temp-restored)
+    (unless (file-exists-p src-file)
+      (fsvn-revert-file src-file t)
+      (setq temp-restored t))
+    (if (not (file-exists-p dest-file))
+        (apply 'fsvn-browse-copy-this src-file dest-file args)
+      (let (tmpfile)
+        (setq tmpfile (fsvn-make-temp-filename src-file))
+        (rename-file dest-file tmpfile t)
+        (unwind-protect
+            (fsvn-popup-call-process "copy" (list src-file) dest-file args)
+          (cond
+           ((fsvn-file-exact-directory-p tmpfile)
+            (fsvn-copy-directory tmpfile dest-file))
+           (t
+            (rename-file tmpfile dest-file t))))))
+    (when temp-restored
+      (delete-file src-file))))
 
 (defun fsvn-browse-smart-move-this (alist &optional args)
   "Execute `move' to point file.

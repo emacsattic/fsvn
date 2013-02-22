@@ -40,6 +40,15 @@
                0)
         (fsvn-buffer-string-propget propname)))))
 
+(defun fsvn-revert-file (file &optional with-error)
+  (with-temp-buffer
+    (cond
+     ((= (fsvn-call-command "revert" t file) 0)
+      t)
+     (with-error
+      (error "Revert failed (%s)" file))
+     (t nil))))
+
 (defun fsvn-get-propget-file (propname url)
   (let ((value (fsvn-get-propget propname url))
         (file (fsvn-make-temp-file)))

@@ -1,3 +1,8 @@
+2013-02-22  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Improve: `fsvn-browse-safe-copy-this' `fsvn-browse-safe-move-this'
+		accept non existent src-file.
+
 2012-11-22  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Change: Unsupport svn 1.5.x

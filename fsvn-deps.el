@@ -702,6 +702,22 @@ $"
 
 
 
+(defmacro fsvn-parse-result-modify-cmd-wrapper-internal (regexp buffer min action)
+  `(let (dir files)
+     (with-current-buffer ,buffer
+       (save-excursion
+         (goto-char (or min (point-min)))
+         (while (re-search-forward ,regexp nil t)
+           (setq files (cons (fsvn-expand-file (match-string 1)) files)))
+         (mapc
+          (lambda (file)
+            (setq dir (fsvn-file-name-directory file))
+            (fsvn-save-browse-directory-excursion dir
+              (unless (fsvn-browse-goto-file file)
+                (fsvn-browse-add-wc-raw-entry dir (fsvn-file-name-nondirectory file) file))
+              (,action file)))
+          files)))))
+
 (defun fsvn-parse-result-cmd-lock (buffer &optional min)
   (with-current-buffer buffer
     (save-excursion
@@ -763,22 +779,6 @@ $"
                  (fsvn-browse-remove-wc-file-entry-internal file))
                entries))))
         (forward-line 1)))))
-
-(defmacro fsvn-parse-result-modify-cmd-wrapper-internal (regexp buffer min action)
-  `(let (dir files)
-     (with-current-buffer ,buffer
-       (save-excursion
-         (goto-char (or min (point-min)))
-         (while (re-search-forward ,regexp nil t)
-           (setq files (cons (fsvn-expand-file (match-string 1)) files)))
-         (mapc
-          (lambda (file)
-            (setq dir (fsvn-file-name-directory file))
-            (fsvn-save-browse-directory-excursion dir
-              (unless (fsvn-browse-goto-file file)
-                (fsvn-browse-add-wc-raw-entry dir (fsvn-file-name-nondirectory file) file))
-              (,action file)))
-          files)))))
 
 (defun fsvn-parse-result-cmd-revert (buffer &optional min)
   (fsvn-parse-result-modify-cmd-wrapper-internal

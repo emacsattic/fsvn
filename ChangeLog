@@ -1,3 +1,7 @@
+2013-03-13  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: defmacro before read defun form
+
 2013-02-22  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Improve: `fsvn-browse-safe-copy-this' `fsvn-browse-safe-move-this'

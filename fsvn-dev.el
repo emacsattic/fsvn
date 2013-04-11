@@ -25,24 +25,23 @@
 (defun fsvn-log-analyze (key-format disp-format)
   (interactive
    (let ((setting (assoc
-                   (completing-read "Analyze type: " fsvn-log-analyze-alist)
+                   (completing-read
+                    "Analyze type: " fsvn-log-analyze-alist nil t)
                    fsvn-log-analyze-alist)))
      (list (nth 1 setting) (nth 2 setting))))
   (require 'chart)
   (let ((inhibit-read-only t)
         alist)
-    (mapcar
-     (lambda (logentry)
-       (let* ((date (fsvn-xml-log->logentry=>date$ logentry))
-              (key (format-time-string key-format date))
-              (disp (format-time-string disp-format date))
-              (cell (assoc key alist)))
-         (unless cell
-           (setq cell (list key disp 0))
-           (setq alist (cons cell alist)))
-         ;; update count cell
-         (setcar (nthcdr 2 cell) (incf (nth 2 cell)))))
-     fsvn-log-list-entries)
+    (dolist (logentry fsvn-log-list-entries)
+      (let* ((date (fsvn-xml-log->logentry=>date$ logentry))
+             (key (format-time-string key-format date))
+             (disp (format-time-string disp-format date))
+             (cell (assoc key alist)))
+        (unless cell
+          (setq cell (list key disp 0))
+          (setq alist (cons cell alist)))
+        ;; update count cell
+        (setcar (nthcdr 2 cell) (incf (nth 2 cell)))))
     (chart-bar-quickie
      'vertical "Fsvn Log Analyze"
      (mapcar (lambda (x) (nth 1 x)) alist) "Date"

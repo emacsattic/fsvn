@@ -71,8 +71,8 @@ Please call `fsvn-initialize-loading' function.
   `(let ((process-environment (copy-sequence process-environment)))
      (setenv "LC_MESSAGES" "C")
      ,@form))
-
 
+
 ;; access to subversion meta directory
 
 ;; http://svn.collab.net/repos/svn/trunk/subversion/libsvn_wc/adm_files.c
@@ -177,24 +177,51 @@ Please call `fsvn-initialize-loading' function.
 
 
 (defun fsvn-deps-get-property (propname file)
-  (if (version< fsvn-svn-version "1.7")
-      (fsvn-meta--get-properties file propname)
-    (fsvn-get-propget file propname)))
+  (cond
+   ((null fsvn-svn-version) nil)
+   ((version< fsvn-svn-version "1.7")
+    (fsvn-meta--get-properties file propname))
+   ((and (require 'sqlite3 nil t) (sqlite3-installed-p))
+    (fsvn-meta--get-properties1.7 file propname))
+   (t
+    (fsvn-get-propget file propname))))
 
 (defun fsvn-deps-file-registered-p (file)
-  (if (version< fsvn-svn-version "1.7")
-      (fsvn-meta--text-base-file file)
-    (fsvn-get-info-entry file)))
+  (cond
+   ((null fsvn-svn-version) nil)
+   ((version< fsvn-svn-version "1.7")
+    (fsvn-meta--text-base-file file))
+   (t
+    (fsvn-get-info-entry file))))
 
 (defun fsvn-deps-text-base-file (file)
-  (if (version< fsvn-svn-version "1.7")
-      (fsvn-meta--text-base-file file)
-    (let* ((info (fsvn-get-info-entry file))
-           (checksum (fsvn-xml-info->entry=>wc-info=>checksum$ info))
-           (root (fsvn-xml-info->entry=>wc-info=>wcroot-abspath$ info)))
-      (expand-file-name
-       (concat "pristine/" (substring checksum 0 2) "/" checksum ".svn-base")
-       (expand-file-name (fsvn-meta-dir-name) root)))))
+  (cond
+   ((null fsvn-svn-version) nil)
+   ((version< fsvn-svn-version "1.7")
+    (fsvn-meta--text-base-file file))
+   (t
+    (fsvn-deps--text-base-file1.7 file))))
+
+(defun fsvn-deps--text-base-file1.7 (file)
+  (let* (checksum root)
+    (cond
+     ((and (require 'sqlite3 nil t) (sqlite3-installed-p))
+      (let* ((root&atom (fsvn-meta--get-from-nodes "checksum" file))
+             (raw-checksum (cadr root&atom)))
+        (setq root (car root&atom))
+        (when (and (stringp raw-checksum)
+                   (string-match "\\`[$][^$]+[$]\\([0-9a-fA-F]+\\)" raw-checksum))
+          (setq checksum (match-string 1 raw-checksum)))))
+     (t
+      (let ((info (fsvn-get-info-entry file)))
+        (setq checksum (fsvn-xml-info->entry=>wc-info=>checksum$ info))
+        (setq root (fsvn-xml-info->entry=>wc-info=>wcroot-abspath$ info)))))
+    (when (and checksum root)
+      (let ((top (substring checksum 0 2))
+            (metadir (expand-file-name (fsvn-meta-dir-name) root)))
+        (expand-file-name
+         (concat "pristine/" top "/" checksum ".svn-base")
+         metadir)))))
 
 
 

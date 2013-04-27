@@ -1,3 +1,9 @@
+2013-04-20  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Improve: use sqlite3 stream at critical point (Testing).
+
+	* Improve: check `fsvn-svn-version' setting.
+
 2013-03-13  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: defmacro before read defun form

@@ -259,11 +259,19 @@ Optional arg FUZZY non-nil means match to all diff message."
 
 
 
+;;TODO
 (defun fsvn-browse-stash-path ()
+  "todo difference between git stash"
   (interactive)
   )
 
+;;TODO
 (defun fsvn-browse-stash-pop-path ()
+  (interactive)
+  )
+
+;;TODO
+(defun fsvn-browse-stash-drop (stash-id)
   (interactive)
   )
 
@@ -277,6 +285,7 @@ Optional arg FUZZY non-nil means match to all diff message."
 ;;TODO stash-push and change and commit files.
 ;;     merge with stashed files
 ;;    patch and merge??
+;;TODO patch only working copy is clean
 (defun fsvn-stash-pop (directory &optional time)
   (let* ((stashdir (fsvn-stash-pop-directory directory time)))
     (unless stashdir
@@ -288,7 +297,7 @@ Optional arg FUZZY non-nil means match to all diff message."
       (unless (directory-files stashdir nil dired-re-no-dot)
         (delete-directory stashdir)))))
 
-(defun fsvn-stash-push (directory)
+(defun fsvn-stash-push (directory description)
   (let* ((stashdir (fsvn-stash-pushing-directory directory))
          (stashdirs (fsvn-stash-pushing-directories stashdir)))
     (unless (file-directory-p stashdir)
@@ -321,24 +330,38 @@ Optional arg FUZZY non-nil means match to all diff message."
      (lambda (sec)
        (fsvn-expand-file (format "%d" sec) dir))
      (sort
-      (remove nil
-              (mapcar
-               (lambda (name)
-                 (when (string-match "^[0-9]+$" name)
-                   (string-to-number name)))
-               files))
+      (delq nil
+            (mapcar
+             (lambda (name)
+               (and (string-match "^[0-9]+$" name)
+                    (string-to-number name)))
+             files))
       '>))))
 
 (defun fsvn-stash-pop-directory-times (directory)
   (mapcar
    (lambda (file)
-     (let ((sec (string-to-number (fsvn-file-name-nondirectory file))))
+     (let* ((fn (fsvn-file-name-nondirectory file))
+            (sec (string-to-number fn)))
        (seconds-to-time sec)))
    (fsvn-stash-pop-directories directory)))
 
-(defun fsvn-stash-hash-directory (directory)
-  (let ((dir (directory-file-name directory)))
-    (fsvn-expand-file (md5 dir) (fsvn-stash-directory))))
+(defun fsvn-stash-hash-directory (file)
+  (let ((key (directory-file-name file)))
+    (fsvn-expand-file (md5 key) (fsvn-stash-directory))))
+
+;; stash ->
+;;   {rep-uuid} ->
+;;      1.patch, 1.info
+;;      ...
+;;      3.patch, 3.info
+
+;; info contains:
+;;  path of stashed
+;;  time when stashed
+;;  description of this stash
+
+;;  TODO any other? property??
 
 (defun fsvn-stash-directory ()
   "Backup directory."
@@ -362,11 +385,112 @@ Optional arg FUZZY non-nil means match to all diff message."
      files)
     nil))
 
-
+;;TODO !IMPORTANT! how to handle rename rename directory.
 ;;TODO stash delete and other svn status
 
 ;;TODO
 ;;(add-to-list 'fsvn-temp-directory-dirs "stash")
+
+
+;; TODO ediff-patch-program
+;; TODO not recursive copy? should  patch?
+
+
+
+(defvar fsvn-sqlite3--connection-pool-size 3)
+(defvar fsvn-sqlite3--connection-pool nil)
+
+;;TODO when file is /hoge/.svn
+(defun fsvn-meta--get-properties1.7 (file &optional propname)
+  ;; Must check sqlite3.el is installed at invoker
+  (fsvn-let* ((root&atom (fsvn-meta--get-from-nodes "properties" file))
+              (atom (cadr root&atom))
+              ((stringp atom))
+              (props (fsvn-meta-parse-properties atom)))
+    (if propname
+        (cdr (assoc propname props))
+      props)))
+
+(defun fsvn-meta--get-from-nodes (column file)
+  (fsvn-let* ((metadir (fsvn-file-control-directory file))
+              (stream (fsvn-sqlite3-connect file metadir))
+              (rootdir (file-name-directory metadir))
+              (relpath (fsvn-url-relative-name file rootdir))
+              (relpath (if (equal relpath ".") "" relpath))
+              (data (fsvn-sqlite3-query
+                     stream
+                     ;;TODO local_relpath is not key.
+                     (concat
+                      (format "SELECT %s " column)
+                      (format " FROM NODES ")
+                      (format " WHERE local_relpath = '%s'"
+                              (sqlite3-escape relpath)))))
+              (top (car data))
+              (atom (nth 0 top)))
+    (list rootdir atom)))
+
+(defun fsvn-sqlite3-query (stream query)
+  (sqlite3-stream-execute-query stream query))
+
+(defun fsvn-sqlite3-connect (file &optional metadir)
+  (setq metadir (or metadir (fsvn-file-control-directory file)))
+  (let ((wcdb (expand-file-name "wc.db" metadir)))
+    (catch 'found
+      (unless (file-exists-p wcdb)
+        (throw 'found nil))
+      (dolist (s fsvn-sqlite3--connection-pool)
+        (cond
+         ((not (sqlite3-stream-alive-p s))
+          (setq fsvn-sqlite3--connection-pool
+                (delq s fsvn-sqlite3--connection-pool)))
+         ((string= (sqlite3-stream-filename s) wcdb)
+          ;; move top of list
+          (setq fsvn-sqlite3--connection-pool
+                (cons s (delq s fsvn-sqlite3--connection-pool)))
+          (throw 'found s))))
+      ;; Not found. Connect to file expiring old connection.
+      (when (> (length fsvn-sqlite3--connection-pool)
+               (1- fsvn-sqlite3--connection-pool-size))
+        (let ((rpool (reverse fsvn-sqlite3--connection-pool)))
+          (sqlite3-stream-close (car rpool))
+          (setq fsvn-sqlite3--connection-pool
+                (reverse (cdr rpool)))))
+      (let ((stream (let ((inhibit-read-only t))
+                      (sqlite3-stream-open wcdb))))
+        (setq fsvn-sqlite3--connection-pool
+              (cons stream fsvn-sqlite3--connection-pool))
+        stream))))
+
+(defun fsvn-meta-parse-properties (text)
+  (unless (string-match "\\`(" text)
+    (error "Not a valid proeprties text"))
+  (unless (string-match "\\`()\\'" text)
+    (let ((start 1)
+          (len (length text))
+          res)
+      (while (< start len)
+        (let (key val)
+          (unless (string-match "\\([^ ]+\\) " text start)
+            (error "Not a valid property name %s" text))
+          (setq start (match-end 0))
+          (setq key (match-string 1 text))
+          (cond
+           ;;TODO check svn doc. or source.
+           ((eq (string-match "\\([0-9]+\\) " text start) start)
+            (setq start (match-end 0))
+            (let* ((size (string-to-number (match-string 1 text)))
+                   (end (+ start size)))
+              (setq val (substring text start end))
+              (setq start (1+ end))))
+           ((eq (string-match "\\([^ ]+\\)\\(?: \\|\)\\'\\)" text start) start)
+            (setq start (match-end 0))
+            (setq val (match-string 1 text)))
+           (t (error "No matched to value %s" text)))
+          (setq res (cons (cons key val) res))))
+      (nreverse res))))
+
+;;TODO check recursively with current implementation
+;; (directory-files-recursively "/home/masa/.emacs.d/")
 
 
 ;; testing

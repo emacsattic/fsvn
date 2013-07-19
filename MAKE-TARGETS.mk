@@ -1,4 +1,4 @@
-VERSION = 0.9.13
+VERSION = $(shell sed -n -e 's/^;;* Version: \([0-9.]\)/\1/p' fsvn.el)
 
 RELEASE_FILES = \
 	fsvn-admin.el fsvn-blame.el fsvn-browse.el fsvn-cmd.el fsvn-config.el \
@@ -20,7 +20,7 @@ RELEASE_SAMPLES = \
 RELEASE_IMAGES = \
 	images/*.xpm
 
-EXCLUDE_RELEASE = \
+EXCLUDE_PACKAGE = \
 	Samples fsvn-make.el *-test.el Makefile MAKE-CFG.el MAKE-TARGETS.mk INSTALL
 
 ARCHIVE_DIR_PREFIX = ..
@@ -65,7 +65,7 @@ archive: prepare
 
 package: prepare
 	cd /tmp/$(PACKAGE)-$(VERSION) ; \
-	rm -rf $(EXCLUDE_RELEASE) ; \
+	rm -rf $(EXCLUDE_PACKAGE) ; \
 	cd .. ; \
 	tar cf $(PACKAGE)-$(VERSION).tar $(PACKAGE)-$(VERSION)
 

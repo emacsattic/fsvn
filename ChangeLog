@@ -1,3 +1,7 @@
+2013-05-13  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Refactor: remove redundant `require'
+
 2013-04-20  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Improve: use sqlite3 stream at critical point (Testing).

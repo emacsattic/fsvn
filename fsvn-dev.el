@@ -424,14 +424,16 @@ Optional arg FUZZY non-nil means match to all diff message."
                       (format "SELECT %s " column)
                       (format " FROM NODES ")
                       (format " WHERE local_relpath = '%s'"
-                              (sqlite3-escape relpath)))))
+                              (sqlite3-escape-string relpath)))))
               (top (car data))
               (atom (nth 0 top)))
     (list rootdir atom)))
 
 (defun fsvn-sqlite3-query (stream query)
-  (sqlite3-stream-execute-query stream query))
+  (let ((inhibit-redisplay t))
+    (sqlite3-stream-read-query stream query)))
 
+;;TODO must invoke from wc top directory
 (defun fsvn-sqlite3-connect (file &optional metadir)
   (setq metadir (or metadir (fsvn-file-control-directory file)))
   (let ((wcdb (expand-file-name "wc.db" metadir)))

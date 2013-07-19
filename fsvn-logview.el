@@ -11,7 +11,6 @@
 
 
 
-(require 'minibuffer)
 (require 'fsvn-mode)
 (require 'fsvn-xml)
 (require 'fsvn-url)

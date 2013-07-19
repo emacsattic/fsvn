@@ -168,7 +168,7 @@ Optional argument REVISION means point of URLREV log chain."
                               (when revision (list "--revision" revision))
                               file) 0)
         (progn
-          ;; specification is changed after between 1.6.12 and 1.6.18.
+          ;; specification is changed between 1.6.12 and 1.6.18.
           ;; If exported FILE argument contains revision string, remove revision segment
           ;; by svn command.
           ;; (ex hoge.el@1020 -> hoge.el)

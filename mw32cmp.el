@@ -107,6 +107,15 @@
   (unless (executable-find "reg")
     (error "Unable get regisotry.")))
 
+(defvar mw32cmp--force-64bit nil
+  "FIXME: workaround variable to handle Wow6432Node")
+
+(defun mw32cmp--call-regexe (key args)
+  (when mw32cmp--force-64bit
+    (setq args (append args (list "/reg:64"))))
+  (unless (= (apply 'call-process "reg" nil t nil args) 0)
+    (signal 'error (list "Cannot open registry key" key))))
+
 (defun mw32cmp-pseudo-registry-get (key &optional name)
   (mw32cmp-pseudo-registry-check)
   (mw32cmp-pseudo-check-string key)
@@ -116,8 +125,7 @@
             ret reg)
         (setq args (append args (list "/v" name)))
         (with-temp-buffer
-          (unless (= (apply 'call-process "reg" nil t nil args) 0)
-            (signal 'error (list "Cannot open registry key" key)))
+          (mw32cmp--call-regexe key args)
           (mw32cmp-pseudo-registry-narrow key
             (while (null ret)
               (when (looking-at name-regex)
@@ -144,8 +152,7 @@
                   (cons subkey (mw32cmp-pseudo-registry-get key))))
             (lambda () (match-string 1))))
     (with-temp-buffer
-      (unless (= (apply 'call-process "reg" nil t nil args) 0)
-        (signal 'error (list "Cannot open registry key" key)))
+      (mw32cmp--call-regexe key args)
       (setq regexp (concat "^" (regexp-quote key) "\\\\?\\([^\\\\\n]+\\)$"))
       (goto-char (point-min))
       (while (not (eobp))
@@ -160,8 +167,7 @@
   (let (args matcher)
     (setq args (list "query" key))
     (with-temp-buffer
-      (unless (= (apply 'call-process "reg" nil t nil args) 0)
-        (signal 'error (list "Cannot open registry key" key)))
+      (mw32cmp--call-regexe key args)
       (setq matcher
             (if with-data
                 'mw32cmp-pseudo-registry-matched-name-object
@@ -231,6 +237,7 @@
     (signal 'wrong-type-argument (list 'listp data))))
 
 (defun mw32cmp-call-reg-update-process (args)
+  ;;TODO /reg:64
   (= (apply 'call-process "reg" nil (current-buffer) nil args) 0))
 
 (defun mw32cmp-registry-pseudo-symbol-to-type (symbol)

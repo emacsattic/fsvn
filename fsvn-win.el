@@ -173,9 +173,15 @@
   (or
    (and (fsvn-win-wow64-p)
         (condition-case nil
-            (car (mw32-registry-get
-                  "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Cygwin\\setup"
-                  "rootdir"))
+            (let ((mw32cmp--force-64bit t))
+              ;; FIXME: I don't well know about wow64,
+              ;; seems under "HKEY_LOCAL_MACHINE\SOFTWARE" key
+              ;; point to "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node"
+              ;; if 32bit program. to indicate the 64bit mode set
+              ;; work around parameter `mw32cmp--force-64bit' to `t'
+              (car (mw32-registry-get
+                    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygwin\\setup"
+                    "rootdir")))
           (error nil)))
    (condition-case nil
        ;; probably cygwin 1.7 or later
@@ -239,13 +245,15 @@
 
 (defun fsvn-win-initialize-loading ()
   (setq fsvn-cygwin-svn-p (fsvn-cygwin-svn-p))
+  ;; Update cygwin settings
+  ;; FIXME: about after install/reinstall/uninstall cygwin
+  (setq fsvn-cygwin-installed-folder (fsvn-cygwin-installed-folder)
+        fsvn-cygwin-guessed-installed (fsvn-cygwin-guessed-installed)
+        fsvn-cygwin-installed-dir (fsvn-cygwin-installed-dir)
+        fsvn-cygwin-drive-prefix-dir (fsvn-cygwin-drive-prefix-dir))
   (cond
    (fsvn-cygwin-svn-p
-    (setq fsvn-cygwin-installed-folder (fsvn-cygwin-installed-folder)
-          fsvn-cygwin-guessed-installed (fsvn-cygwin-guessed-installed)
-          fsvn-cygwin-installed-dir (fsvn-cygwin-installed-dir)
-          fsvn-cygwin-drive-prefix-dir (fsvn-cygwin-drive-prefix-dir)
-          fsvn-targets-file-converter 'fsvn-win-targets-file-converter
+    (setq fsvn-targets-file-converter 'fsvn-win-targets-file-converter
           fsvn-password-prompt-accessible-p t))
    (t
     (setq fsvn-targets-file-converter nil

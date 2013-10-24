@@ -1,3 +1,13 @@
+2013-10-24  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: cygwin support. Update cygwin settings whether or not
+	install cygwin
+
+2013-10-22  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: improve and fix wow64 support.
+	       Cygwin-64bit support.
+
 2013-05-13  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Refactor: remove redundant `require'

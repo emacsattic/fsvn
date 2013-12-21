@@ -204,19 +204,27 @@ This list sorted revision descending.
     (mapc
      (lambda (logentry)
        (setq rev (fsvn-xml-log->logentry.revision logentry))
-       (mapc
-        (lambda (path)
-          (unless (string= (fsvn-xml-log->logentry->path.copyfrom-path path) "")
-            (let ((logpath (fsvn-xml-log->logentry->paths->path$ path))
-                  (copyfrom (fsvn-xml-log->logentry->path.copyfrom-path path)))
-              (cond
-               ((string= logpath current)
-                (setq current copyfrom)
-                (setq ret (cons (cons rev current) ret)))
-               ((string-match (concat "^" (regexp-quote logpath) "/") current)
-                (setq current (fsvn-expand-url (substring current (match-end 0)) copyfrom))
-                (setq ret (cons (cons rev current) ret)))))))
-        (fsvn-xml-log->logentry->paths logentry)))
+       (catch 'done
+         (let ((target current)
+               next)
+           (mapc
+            (lambda (path)
+              (unless (string= (fsvn-xml-log->logentry->path.copyfrom-path path) "")
+                (let ((logpath (fsvn-xml-log->logentry->paths->path$ path))
+                      (copyfrom (fsvn-xml-log->logentry->path.copyfrom-path path)))
+                  (cond
+                   ((string= logpath target)
+                    ;; match to exact path
+                    (setq current copyfrom)
+                    (setq ret (cons (cons rev copyfrom) ret))
+                    (throw 'done t))
+                   ((string-match (concat "^" (regexp-quote logpath) "/") target)
+                    ;; match to ancestor of the target
+                    ;; may exact match to target
+                    (setq next (fsvn-expand-url (substring target (match-end 0)) copyfrom)))))))
+            (fsvn-xml-log->logentry->paths logentry))
+           (when next
+             (setq ret (cons (cons rev next) ret))))))
      log-entries)
     (nreverse ret)))
 

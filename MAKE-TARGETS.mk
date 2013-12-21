@@ -72,12 +72,12 @@ package: prepare
 prepare:
 	rm -rf /tmp/$(PACKAGE)-$(VERSION)
 	mkdir /tmp/$(PACKAGE)-$(VERSION)
-	cp -pr $(RELEASE_FILES) /tmp/$(PACKAGE)-$(VERSION)
+	cp -r $(RELEASE_FILES) /tmp/$(PACKAGE)-$(VERSION)
 	chmod 644 /tmp/$(PACKAGE)-$(VERSION)/*
 	mkdir /tmp/$(PACKAGE)-$(VERSION)/Samples
-	cp -p $(RELEASE_SAMPLES) /tmp/$(PACKAGE)-$(VERSION)/Samples
+	cp $(RELEASE_SAMPLES) /tmp/$(PACKAGE)-$(VERSION)/Samples
 	mkdir /tmp/$(PACKAGE)-$(VERSION)/images
-	cp -p $(RELEASE_IMAGES) /tmp/$(PACKAGE)-$(VERSION)/images
+	cp $(RELEASE_IMAGES) /tmp/$(PACKAGE)-$(VERSION)/images
 	chmod 744 /tmp/$(PACKAGE)-$(VERSION)/Samples
 
 single-file:

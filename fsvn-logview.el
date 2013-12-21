@@ -1106,7 +1106,7 @@ Keybindings:
       (match-string-no-properties 1))))
 
 (defun fsvn-log-sibling-draw-list (logentry path)
-  (let (regexps buffer-read-only)
+  (let (moves buffer-read-only)
     (erase-buffer)
     (mapc
      (lambda (path-entry)
@@ -1125,19 +1125,39 @@ Keybindings:
                     (setq copied (fsvn-xml-log->logentry->path.copyfrom-path path-entry))
                     (not (string= copied ""))
                     (fsvn-url-contains-p text path))
-           ;; delayed highlight by font-lock
-           (let ((qcopied (regexp-quote (fsvn-url-decode-string copied))))
-             (setq regexps (cons (format "^D \\(%s\\)$" qcopied) regexps))))))
+           (setq moves (cons (cons copied text) moves)))))
      (fsvn-log-sibling-sorted-paths logentry))
+    ;; delayed highlight by font-lock
     (setq fsvn-log-sibling-font-lock-keywords
           (mapcar
-           (lambda (regexp)
-             (list regexp '(1 fsvn-header-key-face)))
-           regexps))
+           (lambda (move)
+             (let* ((target (fsvn-log-sibling-replace-parent (car move) moves))
+                    (qtarget (regexp-quote (fsvn-url-decode-string target)))
+                    (regexp (format "^D \\(%s\\)$" qtarget)))
+               (list regexp '(1 fsvn-header-key-face))))
+           moves))
     (if (fboundp 'font-lock-refresh-defaults)
         (font-lock-refresh-defaults)
       ;; FIXME To suppress the warnings
       (set 'font-lock-set-defaults nil))))
+
+(defun fsvn-log-sibling-replace-parent (target rules)
+  ;; resolve complicated rename in one commit
+  ;; e.g.
+  ;; file "/some/path/from/a1" exists
+  ;; svn mv /some/path/from /some/path/to
+  ;; svn mv /some/path/to/a1 /some/path/to/b1
+  ;; svn commit
+  (catch 'done
+    (mapc
+     (lambda (r)
+       (let* ((from (car r))
+              (to (cdr r))
+              (from-regexp (concat "\\`" (regexp-quote from) "/\\(.+\\)")))
+         (when (string-match from-regexp target)
+           (throw 'done (concat to "/" (match-string 1 target))))))
+     rules)
+    target))
 
 (defun fsvn-log-sibling-point-status ()
   (save-excursion

@@ -56,27 +56,26 @@ Argument SEQUENCE see `mapcar'."
 
 ;; import from gauche `and-let*'
 (defmacro fsvn-let* (varlist &rest body)
-  (declare (indent 1) (debug t))
-  (reduce
-   (lambda (v res)
-     (cond
-      ((atom v)
-       ;; BOUND-VARIABLE
-       `(and ,v ,res))
-      ((= (length v) 1)
-       ;; (EXPRESSION)
-       `(and ,@v ,res))
-      ((> (length v) 2)
-       (error "Malformed `fsvn-let*'"))
-      ((not (symbolp (car v)))
-       (error "Malformed `fsvn-let*'"))
-      (t
-       ;; (VARIABLE EXPRESSION)
-       `(let ((,(car v) ,(cadr v)))
-          (and ,(car v) ,res)))))
-   varlist
-   :from-end t
-   :initial-value `(progn ,@body)))
+  (declare (indent 1))
+  (let ((res `(progn ,@body)))
+    (dolist (v (reverse varlist))
+      (setq res
+            (cond
+             ((atom v)
+              ;; BOUND-VARIABLE
+              `(and ,v ,res))
+             ((= (length v) 1)
+              ;; (EXPRESSION)
+              `(and ,@v ,res))
+             ((> (length v) 2)
+              (error "Malformed `and-let*'"))
+             ((not (symbolp (car v)))
+              (error "Malformed `and-let*'"))
+             (t
+              ;; (VARIABLE EXPRESSION)
+              `(let ((,(car v) ,(cadr v)))
+                 (and ,(car v) ,res))))))
+    res))
 
 (defun fsvn-find-if (pred seq)
   (catch 'found

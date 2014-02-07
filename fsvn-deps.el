@@ -74,7 +74,7 @@ Please call `fsvn-initialize-loading' function.
 
 
 
-(defun fsvn-meta--parse-properties (text)
+(defun fsvn-meta--parse-properties1.7 (text)
   (unless (string-match "\\`(" text)
     (error "Not a valid proeprties text"))
   (unless (string-match "\\`()\\'" text)
@@ -107,7 +107,7 @@ Please call `fsvn-initialize-loading' function.
   (fsvn-let* ((root&atom (fsvn-meta--get-from-nodes "properties" file))
               (atom (cadr root&atom))
               ((stringp atom))
-              (props (fsvn-meta--parse-properties atom)))
+              (props (fsvn-meta--parse-properties1.7 atom)))
     (if propname
         (cdr (assoc propname props))
       props)))
@@ -806,7 +806,7 @@ value: command")
   (let ((format (fsvn-file-wc-version file)))
     (cond
      ((null format)
-      (error "Not a svn working copy"))
+      (error "Not a svn working copy %s" file))
      ((eq format 4) "1.3")
      ((eq format 8) "1.4")
      ((eq format 9) "1.5")
@@ -822,9 +822,11 @@ value: command")
     (cond
      ((null ctl) nil)
      ((file-exists-p (fsvn-expand-file "wc.db" ctl)) ; prior than "entries"
-      (and (require 'esqlite nil t)
-           (esqlite-sqlite-installed-p)
-           (fsvn-meta--get-database-format ctl)))
+      (or (and (require 'esqlite nil t)
+               (esqlite-sqlite-installed-p)
+               (fsvn-meta--get-database-format ctl))
+          ;; regard as maximum released format
+          30))
      ((file-exists-p (fsvn-expand-file "entries" ctl))
       (with-temp-buffer
         (insert-file-contents (fsvn-expand-file "entries" ctl) nil 0 16)

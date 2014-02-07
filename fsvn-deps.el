@@ -821,14 +821,15 @@ value: command")
   (let ((ctl (fsvn-file-control-directory file)))
     (cond
      ((null ctl) nil)
+     ((file-exists-p (fsvn-expand-file "wc.db" ctl)) ; prior than "entries"
+      (and (require 'esqlite nil t)
+           (esqlite-sqlite-installed-p)
+           (fsvn-meta--get-database-format ctl)))
      ((file-exists-p (fsvn-expand-file "entries" ctl))
       (with-temp-buffer
         (insert-file-contents (fsvn-expand-file "entries" ctl) nil 0 16)
         (and (looking-at "^\\([0-9]+\\)$")
              (string-to-number (match-string 1)))))
-     ((and (and (require 'esqlite nil t) (esqlite-sqlite-installed-p))
-           (file-exists-p (fsvn-expand-file "wc.db" ctl)))
-      (fsvn-meta--get-database-format ctl))
      (t nil))))
 
 

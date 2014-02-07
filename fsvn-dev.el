@@ -397,12 +397,12 @@ Optional arg FUZZY non-nil means match to all diff message."
 
 
 
-(defvar fsvn-sqlite3--connection-pool-size 3)
-(defvar fsvn-sqlite3--connection-pool nil)
+(defvar fsvn-sqlite--connection-pool-size 3)
+(defvar fsvn-sqlite--connection-pool nil)
 
 ;;TODO when file is /hoge/.svn
 (defun fsvn-meta--get-properties1.7 (file &optional propname)
-  ;; Must check sqlite3.el is installed at invoker
+  ;; Must check esqlite.el is installed at invoker
   (fsvn-let* ((root&atom (fsvn-meta--get-from-nodes "properties" file))
               (atom (cadr root&atom))
               ((stringp atom))
@@ -413,54 +413,54 @@ Optional arg FUZZY non-nil means match to all diff message."
 
 (defun fsvn-meta--get-from-nodes (column file)
   (fsvn-let* ((metadir (fsvn-file-control-directory file))
-              (stream (fsvn-sqlite3-connect file metadir))
+              (stream (fsvn-sqlite-connect file metadir))
               (rootdir (file-name-directory metadir))
               (relpath (fsvn-url-relative-name file rootdir))
               (relpath (if (equal relpath ".") "" relpath))
-              (data (fsvn-sqlite3-query
+              (data (fsvn-sqlite-query
                      stream
                      ;;TODO local_relpath is not key.
                      (concat
                       (format "SELECT %s " column)
                       (format " FROM NODES ")
                       (format " WHERE local_relpath = '%s'"
-                              (sqlite3-escape-string relpath)))))
+                              (esqlite-escape-string relpath)))))
               (top (car data))
               (atom (nth 0 top)))
     (list rootdir atom)))
 
-(defun fsvn-sqlite3-query (stream query)
+(defun fsvn-sqlite-query (stream query)
   (let ((inhibit-redisplay t))
-    (sqlite3-stream-read-query stream query)))
+    (esqlite-stream-read stream query)))
 
 ;;TODO must invoke from wc top directory
-(defun fsvn-sqlite3-connect (file &optional metadir)
+(defun fsvn-sqlite-connect (file &optional metadir)
   (setq metadir (or metadir (fsvn-file-control-directory file)))
   (let ((wcdb (expand-file-name "wc.db" metadir)))
     (catch 'found
       (unless (file-exists-p wcdb)
         (throw 'found nil))
-      (dolist (s fsvn-sqlite3--connection-pool)
+      (dolist (s fsvn-sqlite--connection-pool)
         (cond
-         ((not (sqlite3-stream-alive-p s))
-          (setq fsvn-sqlite3--connection-pool
-                (delq s fsvn-sqlite3--connection-pool)))
-         ((string= (sqlite3-stream-filename s) wcdb)
+         ((not (esqlite-stream-alive-p s))
+          (setq fsvn-sqlite--connection-pool
+                (delq s fsvn-sqlite--connection-pool)))
+         ((string= (esqlite-stream-filename s) wcdb)
           ;; move top of list
-          (setq fsvn-sqlite3--connection-pool
-                (cons s (delq s fsvn-sqlite3--connection-pool)))
+          (setq fsvn-sqlite--connection-pool
+                (cons s (delq s fsvn-sqlite--connection-pool)))
           (throw 'found s))))
       ;; Not found. Connect to file expiring old connection.
-      (when (> (length fsvn-sqlite3--connection-pool)
-               (1- fsvn-sqlite3--connection-pool-size))
-        (let ((rpool (reverse fsvn-sqlite3--connection-pool)))
-          (sqlite3-stream-close (car rpool))
-          (setq fsvn-sqlite3--connection-pool
+      (when (> (length fsvn-sqlite--connection-pool)
+               (1- fsvn-sqlite--connection-pool-size))
+        (let ((rpool (reverse fsvn-sqlite--connection-pool)))
+          (esqlite-stream-close (car rpool))
+          (setq fsvn-sqlite--connection-pool
                 (reverse (cdr rpool)))))
       (let ((stream (let ((inhibit-read-only t))
-                      (sqlite3-stream-open wcdb))))
-        (setq fsvn-sqlite3--connection-pool
-              (cons stream fsvn-sqlite3--connection-pool))
+                      (esqlite-stream-open wcdb))))
+        (setq fsvn-sqlite--connection-pool
+              (cons stream fsvn-sqlite--connection-pool))
         stream))))
 
 (defun fsvn-meta-parse-properties (text)

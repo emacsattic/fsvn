@@ -181,7 +181,7 @@ Please call `fsvn-initialize-loading' function.
    ((null fsvn-svn-version) nil)
    ((version< fsvn-svn-version "1.7")
     (fsvn-meta--get-properties file propname))
-   ((and (require 'sqlite3 nil t) (sqlite3-installed-p))
+   ((and (require 'esqlite nil t) (esqlite-sqlite-installed-p))
     (fsvn-meta--get-properties1.7 file propname))
    (t
     (fsvn-get-propget file propname))))
@@ -205,7 +205,7 @@ Please call `fsvn-initialize-loading' function.
 (defun fsvn-deps--text-base-file1.7 (file)
   (let* (checksum root)
     (cond
-     ((and (require 'sqlite3 nil t) (sqlite3-installed-p))
+     ((and (require 'esqlite nil t) (esqlite-sqlite-installed-p))
       (let* ((root&atom (fsvn-meta--get-from-nodes "checksum" file))
              (raw-checksum (cadr root&atom)))
         (setq root (car root&atom))

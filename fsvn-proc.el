@@ -39,9 +39,10 @@
 (defun fsvn-start-process (buffer &rest args)
   (fsvn-process-environment
    (let* ((real-args (fsvn-command-args-canonicalize args))
-          (coding-system-for-read (fsvn-process-coding-system real-args)))
+          (coding-system-for-read (fsvn-process-coding-system real-args))
+          (command (fsvn-svn-proper-command real-args)))
      (fsvn-debug real-args)
-     (apply 'start-process "fsvn" buffer fsvn-svn-command-internal real-args))))
+     (apply 'start-file-process "fsvn" buffer command real-args))))
 
 (defun fsvn-start-command (subcommand buffer &rest args)
   (apply 'fsvn-start-process buffer subcommand args))
@@ -54,26 +55,27 @@
     proc))
 
 (defun fsvn-call-process (buffer &rest args)
-  "Execute `call-process' with variable `fsvn-svn-command-internal'.
+  "Execute `process-file' with variable `fsvn-svn-command-internal'.
 This is synchronous call, so cannot handle password prompt. Append --non-interactive arg
 explicitly in calling function.
 "
   (fsvn-process-environment
    (let* ((real-args (fsvn-command-args-canonicalize args))
-          (coding-system-for-read (fsvn-process-coding-system real-args)))
+          (coding-system-for-read (fsvn-process-coding-system real-args))
+          (command (fsvn-svn-proper-command real-args)))
      (when (and (bufferp buffer) (> (buffer-size buffer) 0))
        (with-current-buffer buffer
          (goto-char (point-max))))
      (fsvn-debug real-args)
      (prog1
-         (apply 'call-process fsvn-svn-command-internal nil buffer nil real-args)
+         (apply 'process-file command nil buffer nil real-args)
        (fsvn-debug buffer)))))
 
 (defun fsvn-call-command (subcommand buffer &rest args)
   (apply 'fsvn-call-process buffer subcommand (fsvn-command-append-argument subcommand args)))
 
 (defun fsvn-call-command-display (subcommand buffer &rest args)
-  "`call-process' and insert executed command line top of buffer."
+  "`process-file' and insert executed command line top of buffer."
   (let ((commandline (concat (fsvn-build-command-string
                               subcommand
                               (fsvn-command-append-argument subcommand args)) "\n\n")))
@@ -81,7 +83,7 @@ explicitly in calling function.
     (apply 'fsvn-call-command subcommand buffer args)))
 
 (defun fsvn-call-command-discard (subcommand &rest args)
-  "`call-process' and discard executed command output.
+  "`process-file' and discard executed command output.
 If error occur in process (exit status with non zero value) then raise error."
   (with-temp-buffer
     (unless (= (apply 'fsvn-call-command subcommand t args) 0)
@@ -308,13 +310,15 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
     (nreverse ret)))
 
 (defun fsvn-build-command-string (subcommand &rest args)
-  (let ((real-args (fsvn-command-args-canonicalize args)))
+  (let* ((real-subcmd-args (fsvn-command-args-canonicalize args))
+         (real-args (cons subcommand real-subcmd-args))
+         (command (fsvn-svn-proper-command real-args)))
     (mapconcat
      (lambda (x)
        (if (or (string= "" x) (string-match " " x))
            (concat "\"" x "\"")
          x))
-     (append (list fsvn-svn-command-internal subcommand) real-args)
+     `(,command ,subcommand ,@real-subcmd-args)
      " ")))
 
 (defun fsvn-guess-file-contents-coding-system (flatten-args)

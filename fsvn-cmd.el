@@ -701,7 +701,7 @@ Argument FILES ."
              (insert (funcall (or fsvn-targets-file-converter 'identity) file) "\n")))
          files)
         (write-region (point-min) (point-max) tmpfile nil 'no-msg)))
-    tmpfile))
+    (propertize tmpfile 'fsvn-target-files files)))
 
 (defun fsvn-get-prop-temp-file (propname value)
   (let ((tmpfile (fsvn-make-temp-file))

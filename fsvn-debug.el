@@ -28,7 +28,7 @@
       (let ((debug (get-buffer-create fsvn-debug-buffer))
             (message (car messages))
             prev)
-        ;; this is `call-process' argument...
+        ;; this is `process-file' argument...
         (when (eq message t)
           (setq message (current-buffer)))
         (cond

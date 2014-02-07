@@ -165,7 +165,7 @@ return buffer of result output."
     buffer))
 
 (defun fsvn-popup-call-process-multi (command files &rest args)
-  "`call-process' accepts multiple files.
+  "`process-file' accepts multiple files.
 subcommand must accept `--targets' argument.
 
 Argument COMMAND svn subcommand.

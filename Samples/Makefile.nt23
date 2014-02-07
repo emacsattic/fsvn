@@ -6,7 +6,7 @@
 TAR	= tar
 RM	= /bin/rm -f
 
-PREFIX = c:/usr/local/NTEmacs/23.1
+PREFIX = c:/usr/local/NTEmacs/23.3
 
 EMACS	= $(PREFIX)/bin/emacs.exe
 

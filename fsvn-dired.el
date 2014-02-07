@@ -312,7 +312,7 @@ This function suppress this behavior."
   "Act like `dired-show-file-type'. But not equals of this."
   (interactive (list (fsvn-current-filename)))
   (with-temp-buffer
-    (call-process "file" nil t t "--" file)
+    (process-file "file" nil t t "--" file)
     (when (bolp)
       (backward-delete-char 1))
     (message "%s" (buffer-string))))

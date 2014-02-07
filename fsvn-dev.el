@@ -397,103 +397,6 @@ Optional arg FUZZY non-nil means match to all diff message."
 
 
 
-(defvar fsvn-sqlite--connection-pool-size 3)
-(defvar fsvn-sqlite--connection-pool nil)
-
-;;TODO when file is /hoge/.svn
-(defun fsvn-meta--get-properties1.7 (file &optional propname)
-  ;; Must check esqlite.el is installed at invoker
-  (fsvn-let* ((root&atom (fsvn-meta--get-from-nodes "properties" file))
-              (atom (cadr root&atom))
-              ((stringp atom))
-              (props (fsvn-meta-parse-properties atom)))
-    (if propname
-        (cdr (assoc propname props))
-      props)))
-
-(defun fsvn-meta--get-from-nodes (column file)
-  (fsvn-let* ((metadir (fsvn-file-control-directory file))
-              (stream (fsvn-sqlite-connect file metadir))
-              (rootdir (file-name-directory metadir))
-              (relpath (fsvn-url-relative-name file rootdir))
-              (relpath (if (equal relpath ".") "" relpath))
-              (data (fsvn-sqlite-query
-                     stream
-                     ;;TODO local_relpath is not key.
-                     (concat
-                      (format "SELECT %s " column)
-                      (format " FROM NODES ")
-                      (format " WHERE local_relpath = '%s'"
-                              (esqlite-escape-string relpath)))))
-              (top (car data))
-              (atom (nth 0 top)))
-    (list rootdir atom)))
-
-(defun fsvn-sqlite-query (stream query)
-  (let ((inhibit-redisplay t))
-    (esqlite-stream-read stream query)))
-
-;;TODO must invoke from wc top directory
-(defun fsvn-sqlite-connect (file &optional metadir)
-  (setq metadir (or metadir (fsvn-file-control-directory file)))
-  (let ((wcdb (expand-file-name "wc.db" metadir)))
-    (catch 'found
-      (unless (file-exists-p wcdb)
-        (throw 'found nil))
-      (dolist (s fsvn-sqlite--connection-pool)
-        (cond
-         ((not (esqlite-stream-alive-p s))
-          (setq fsvn-sqlite--connection-pool
-                (delq s fsvn-sqlite--connection-pool)))
-         ((string= (esqlite-stream-filename s) wcdb)
-          ;; move top of list
-          (setq fsvn-sqlite--connection-pool
-                (cons s (delq s fsvn-sqlite--connection-pool)))
-          (throw 'found s))))
-      ;; Not found. Connect to file expiring old connection.
-      (when (> (length fsvn-sqlite--connection-pool)
-               (1- fsvn-sqlite--connection-pool-size))
-        (let ((rpool (reverse fsvn-sqlite--connection-pool)))
-          (esqlite-stream-close (car rpool))
-          (setq fsvn-sqlite--connection-pool
-                (reverse (cdr rpool)))))
-      (let ((stream (let ((inhibit-read-only t))
-                      (esqlite-stream-open wcdb))))
-        (setq fsvn-sqlite--connection-pool
-              (cons stream fsvn-sqlite--connection-pool))
-        stream))))
-
-(defun fsvn-meta-parse-properties (text)
-  (unless (string-match "\\`(" text)
-    (error "Not a valid proeprties text"))
-  (unless (string-match "\\`()\\'" text)
-    (let ((start 1)
-          (len (length text))
-          res)
-      (while (< start len)
-        (let (key val)
-          (unless (string-match "\\([^ ]+\\) " text start)
-            (error "Not a valid property name %s" text))
-          (setq start (match-end 0))
-          (setq key (match-string 1 text))
-          (cond
-           ;;TODO check svn doc. or source.
-           ((eq (string-match "\\([0-9]+\\) " text start) start)
-            (setq start (match-end 0))
-            (let* ((size (string-to-number (match-string 1 text)))
-                   (end (+ start size)))
-              (setq val (substring text start end))
-              (setq start (1+ end))))
-           ((eq (string-match "\\([^ ]+\\)\\(?: \\|\)\\'\\)" text start) start)
-            (setq start (match-end 0))
-            (setq val (match-string 1 text)))
-           (t (error "No matched to value %s" text)))
-          (setq res (cons (cons key val) res))))
-      (nreverse res))))
-
-;;TODO check recursively with current implementation
-;; (directory-files-recursively "/home/masa/.emacs.d/")
-
 
 ;; testing
 
@@ -644,7 +547,7 @@ How to send a bug report:
     (unless (and info (> (fsvn-xml-info->entry.revision info) 0))
       ;; No costed execute. sync process.
       (with-temp-buffer
-        (unless (= (call-process fsvn-svnsync-command-internal nil (current-buffer) nil "initialize" cached-url root) 0)
+        (unless (= (process-file fsvn-svnsync-command-internal nil (current-buffer) nil "initialize" cached-url root) 0)
           (signal 'fsvn-command-error (cons (buffer-string) nil)))))
     cached-url))
 
@@ -653,7 +556,7 @@ How to send a bug report:
          (buffer (fsvn-make-temp-buffer))
          proc)
     (fsvn-process-environment
-     (setq proc (start-process "fsvn" buffer fsvn-svnsync-command-internal "synchronize" cached-url)))
+     (setq proc (start-file-process "fsvn" buffer fsvn-svnsync-command-internal "synchronize" cached-url)))
     (set-process-sentinel proc
                           (lambda (p e)
                             (fsvn-process-exit-handler p e

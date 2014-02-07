@@ -206,7 +206,7 @@ If there is executing problem in windows/cygwin then set path to perl.exe."
              internal-args (append (list fsvn-svk-perl-command subcommand)
                                    real-args)))
      (fsvn-debug internal-args)
-     (apply 'call-process command nil buffer nil internal-args))))
+     (apply 'process-file command nil buffer nil internal-args))))
 
 (defun fsvn-svk-start-command (subcommand buffer &rest args)
   (fsvn-svk-process-environment
@@ -219,7 +219,7 @@ If there is executing problem in windows/cygwin then set path to perl.exe."
              (list fsvn-svk-perl-command script)))
      (setq internal-args (append internal-args (cons subcommand real-args)))
      (fsvn-debug internal-args)
-     (setq proc (apply 'start-process "fsvn svk" buffer internal-args))
+     (setq proc (apply 'start-file-process "fsvn svk" buffer internal-args))
      (set-process-sentinel proc 'fsvn-svk-process-sentinel)
      (set-process-filter proc 'fsvn-popup-process-filter-in-buffer)
      (with-current-buffer buffer

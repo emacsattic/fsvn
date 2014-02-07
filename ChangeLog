@@ -1,3 +1,29 @@
+2014-02-07  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Add: `fsvn-add-command-location' function to support switching
+		svn binary according of working copy format.
+
+	* Improve: Use `fsvn-svn*-internal' variable.
+
+2014-02-06  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Add: direct read from meta directory through `esqlite'
+
+2014-01-29  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Improve: some function prepare to works on tramp filename. (Not enough tested)
+
+2013-12-25  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Change: remove 1.4.x, 1.5.x test
+	* Change: Unsupport Meadow (Just remove test)
+	* Change: Unsupport NTEmacs 22 (Just remove test)
+	* Add: NTEmacs 24 test
+
+2013-12-22  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: Break iswitchb `iswitchb-toggle-ignore' mechanism.
+
 2013-12-21  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: wrong log chain when complicated rename.

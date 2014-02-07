@@ -71,6 +71,109 @@ Please call `fsvn-initialize-loading' function.
   `(let ((process-environment (copy-sequence process-environment)))
      (setenv "LC_MESSAGES" "C")
      ,@form))
+
+
+
+(defun fsvn-meta--parse-properties (text)
+  (unless (string-match "\\`(" text)
+    (error "Not a valid proeprties text"))
+  (unless (string-match "\\`()\\'" text)
+    (let ((start 1)
+          (len (length text))
+          res)
+      (while (< start len)
+        (let (key val)
+          (unless (string-match "\\([^ ]+\\) " text start)
+            (error "Not a valid property name %s" text))
+          (setq start (match-end 0))
+          (setq key (match-string 1 text))
+          (cond
+           ;;TODO check svn doc. or source.
+           ((eq (string-match "\\([0-9]+\\) " text start) start)
+            (setq start (match-end 0))
+            (let* ((size (string-to-number (match-string 1 text)))
+                   (end (+ start size)))
+              (setq val (substring text start end))
+              (setq start (1+ end))))
+           ((eq (string-match "\\([^ ]+\\)\\(?: \\|\)\\'\\)" text start) start)
+            (setq start (match-end 0))
+            (setq val (match-string 1 text)))
+           (t (error "No matched to value %s" text)))
+          (setq res (cons (cons key val) res))))
+      (nreverse res))))
+
+(defun fsvn-meta--get-properties1.7 (file &optional propname)
+  ;; Must check esqlite.el is installed at invoker
+  (fsvn-let* ((root&atom (fsvn-meta--get-from-nodes "properties" file))
+              (atom (cadr root&atom))
+              ((stringp atom))
+              (props (fsvn-meta--parse-properties atom)))
+    (if propname
+        (cdr (assoc propname props))
+      props)))
+
+(defun fsvn-meta--get-database-format (metadir)
+  (fsvn-let* ((stream (fsvn-meta--sqlite-connect metadir))
+              (atom (fsvn-meta--sqlite-read-atom
+                     stream
+                     "PRAGMA user_version")))
+    (string-to-number atom)))
+
+(defun fsvn-meta--get-from-nodes (column file)
+  (fsvn-let* ((metadir (fsvn-file-control-directory file))
+              (stream (fsvn-meta--sqlite-connect metadir))
+              (rootdir (file-name-directory metadir))
+              (relpath (fsvn-url-relative-name file rootdir))
+              (relpath (if (equal relpath ".") "" relpath))
+              (atom (fsvn-meta--sqlite-read-atom
+                     stream
+                     ;;TODO FIXME local_relpath is not key.
+                     ;; not enough investigate it but works well for me..
+                     (esqlite-prepare
+                      '("SELECT %o{column} "
+                        " FROM NODES "
+                        " WHERE local_relpath = %V{relpath}"
+                        " ORDER BY op_depth DESC"
+                        " LIMIT 1")
+                      :column column
+                      :relpath relpath))))
+    (list rootdir atom)))
+
+(defun fsvn-meta--sqlite-read-atom (stream query)
+  (let ((inhibit-redisplay t))
+    (esqlite-stream-read-atom stream query)))
+
+(defvar fsvn-meta--sqlite-connection-pool-size 3)
+(defvar fsvn-meta--sqlite-connection-pool nil)
+
+(defun fsvn-meta--sqlite-connect (metadir)
+  (let ((wcdb (expand-file-name "wc.db" metadir)))
+    (catch 'found
+      (unless (file-exists-p wcdb)
+        (throw 'found nil))
+      (dolist (s fsvn-meta--sqlite-connection-pool)
+        (cond
+         ((not (esqlite-stream-alive-p s))
+          (setq fsvn-meta--sqlite-connection-pool
+                (delq s fsvn-meta--sqlite-connection-pool)))
+         ((string= (esqlite-stream-filename s) wcdb)
+          ;; move top of list
+          (setq fsvn-meta--sqlite-connection-pool
+                (cons s (delq s fsvn-meta--sqlite-connection-pool)))
+          (throw 'found s))))
+      ;; Not found. Connect to file expiring old connection.
+      (when (> (length fsvn-meta--sqlite-connection-pool)
+               (1- fsvn-meta--sqlite-connection-pool-size))
+        (let ((rpool (reverse fsvn-meta--sqlite-connection-pool)))
+          (esqlite-stream-close (car rpool))
+          (setq fsvn-meta--sqlite-connection-pool
+                (reverse (cdr rpool)))))
+      (let ((stream (let ((inhibit-read-only t))
+                      (esqlite-stream-open wcdb))))
+        (setq fsvn-meta--sqlite-connection-pool
+              (cons stream fsvn-meta--sqlite-connection-pool))
+        stream))))
+
 
 
 ;; access to subversion meta directory
@@ -241,27 +344,97 @@ Please call `fsvn-initialize-loading' function.
     "--config-dir"
     ))
 
-(defun fsvn-set-command-information ()
-  (unless (setq fsvn-svn-command-internal (executable-find fsvn-svn-command))
-    (error "No executable \"%s\" in `exec-path'" fsvn-svn-command))
-  (unless (setq fsvn-svnadmin-command-internal (executable-find fsvn-svnadmin-command))
-    (error "No executable \"%s\" in `exec-path'" fsvn-svnadmin-command))
-  (fsvn-set-version))
+(defvar fsvn-svn-command-alist nil
+  "key-value pair of svn command. Sort ascendant by version.
+key: version
+value: command")
 
-(defun fsvn-set-version ()
+(defun fsvn-svn-proper-command (&optional flat-args)
+  (cond
+   ((member (car-safe flat-args) '("upgrade"))
+    fsvn-svn-command-internal)
+   (t
+    (condition-case err
+        (let* ((args flat-args)
+               (file (catch 'done
+                       (while args
+                         (cond
+                          ((fsvn-url-local-p (car args))
+                           (throw 'done (car args)))
+                          ((string= (car args) "--targets")
+                           ;; ignore next arg
+                           (setq args (cdr args))
+                           (let* ((targets (get-text-property 0 'fsvn-target-files (car args)))
+                                  (file (fsvn-find-if 'fsvn-url-local-p targets)))
+                             (when file
+                               (throw 'done file))))
+                          ((string= (car args) "--file")
+                           ;; just ignore next arg
+                           (setq args (cdr args))))
+                         (setq args (cdr args)))))
+               (ver (fsvn-file-wc-svn-version (or file default-directory))))
+          (fsvn-svn-fetch-proper-version ver))
+      (error
+       (message "%s" err)
+       ;; default command
+       fsvn-svn-command-internal)))))
+
+(defun fsvn-svn-fetch-proper-version (&optional format-version)
+  (catch 'found
+    (unless format-version
+      (throw 'found fsvn-svn-command-internal))
+    (let ((pair (assoc format-version fsvn-svn-command-alist)))
+      (when pair
+        (throw 'found (cdr pair))))
+    ;; default
+    fsvn-svn-command-internal))
+
+(defun fsvn-get-version (command)
   (with-temp-buffer
     (fsvn-deps-process-environment
      ;;TODO 1.6.9 stderr "svn: warning: cannot set LC_CTYPE locale"
      ;; not depend on fsvn-call-process
-     (call-process fsvn-svn-command-internal nil (list (current-buffer) nil) nil "--version" "--quiet")
-     (let ((raw-version (car (fsvn-text-buffer-line-as-list)))
-           version)
-       (when (fboundp 'version<=)
-         (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" raw-version)
-           (setq version (match-string 1 raw-version)))
-         (setq fsvn-svn-version (or version raw-version))
-         (when (version<= fsvn-svn-version  "1.4")
-           (error "Svn command must be 1.5.x or later")))))))
+     (process-file command nil (list (current-buffer) nil) nil "--version" "--quiet"))
+    (let ((raw-version (car (fsvn-text-buffer-line-as-list)))
+          version)
+      ;; trim "1.8.6-dev" like version
+      (unless (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" raw-version)
+        (error "Unsupported version"))
+      (match-string 1 raw-version))))
+
+(defun fsvn-get-ensure-version (command)
+  (let ((ver (fsvn-get-version command)))
+    (when (fboundp 'version<=)
+      (when (version<= ver  "1.4")
+        (error "Svn command must be 1.5.x or later")))
+    ver))
+
+(defun fsvn-set-command-information ()
+  (unless (setq fsvn-svn-command-internal
+                (executable-find fsvn-svn-command))
+    (error "No executable \"%s\" in `exec-path'" fsvn-svn-command))
+  (unless (setq fsvn-svnadmin-command-internal
+                (executable-find fsvn-svnadmin-command))
+    (error "No executable \"%s\" in `exec-path'" fsvn-svnadmin-command))
+  (fsvn-add-command-location fsvn-svn-command-internal)
+  (let ((ver (fsvn-get-ensure-version fsvn-svn-command-internal)))
+    (setq fsvn-svn-version ver)))
+
+(defun fsvn-add-command-location (svn-command)
+  (let ((bin (executable-find svn-command)))
+    (unless bin
+      (error "Not a executable"))
+    (let* ((ver (fsvn-get-ensure-version svn-command))
+           (key (and (string-match "\\`[0-9]+\\.[0-9]+" ver)
+                     (match-string 0 ver)))
+           (alist fsvn-svn-command-alist)
+           target)
+      (unless (setq target (assoc key alist))
+        (setq target (cons key nil))
+        (setq alist (cons target alist)))
+      (setcdr target bin)
+      (setq fsvn-svn-command-alist alist)
+      ver)))
 
 (defun fsvn-build-subcommand (&optional force)
   (mapc
@@ -288,23 +461,23 @@ Please call `fsvn-initialize-loading' function.
          (fsvn-lisp-save (symbol-value subcommand-var) subcache)
          (fsvn-lisp-save (symbol-value arguments-var) argcache))))
    (list
-    (list fsvn-svn-command
+    (list fsvn-svn-command-internal
           'fsvn-svn-subcommand-completion-alist
           'fsvn-svn-subcommand-arguments-alist
           (concat "svn-" fsvn-svn-version))
-    (list fsvn-svnadmin-command
+    (list fsvn-svnadmin-command-internal
           'fsvn-svnadmin-subcommand-completion-alist
           'fsvn-svnadmin-subcommand-arguments-alist
-          (concat "svnadmin-" fsvn-svn-version)))) ;; version is guessed as `svn'
+          ;; version is guessed as `svn'
+          (concat "svnadmin-" fsvn-svn-version))))
   (setq fsvn-svnsync-command-internal
         (fsvn-svn-command-sibling-find "svnsync")))
-
 
 (defun fsvn-subcommand-argument-list (command subcommand)
   "Parse SUBCOMMAND help."
   (with-temp-buffer
     (fsvn-deps-process-environment
-     (call-process command nil t nil "help" subcommand))
+     (process-file command nil t nil "help" subcommand))
     (goto-char (point-min))
     (let (ret)
       (while (re-search-forward "^ \\{2\\}\\(?:\\(--[^ ]+\\)\\|\\(-[^-]\\) +\\[\\(--[^ ]+\\)\\]\\) +\\([^ :]+\\)?" nil t)
@@ -355,7 +528,7 @@ Please call `fsvn-initialize-loading' function.
 (defun fsvn-subcommand-alist-build (command)
   (with-temp-buffer
     (fsvn-deps-process-environment
-     (call-process command nil t nil "help"))
+     (process-file command nil t nil "help"))
     (goto-char (point-min))
     (let (ret)
       (when (re-search-forward "^Available subcommands:")
@@ -606,7 +779,8 @@ Please call `fsvn-initialize-loading' function.
     (let ((control (fsvn-expand-file (fsvn-meta-dir-name) file)))
       (and (fsvn-file-exact-directory-p control)
            control)))
-   ((string-match "/\\.svn\\($\\|/\\)" file) nil)
+   ((string-match (format "/%s\\($\\|/\\)" (regexp-quote (fsvn-meta-dir-name))) file)
+    nil)
    ((fsvn-magic-file-name-absolute-p file) nil)
    ;; TODO ignored status
    (t
@@ -627,23 +801,35 @@ Please call `fsvn-initialize-loading' function.
 
 ;; file: subversion/libsvn_wc/upgrade.c
 ;; function: version_string_from_format
+;; ref: `fsvn-svn-command-alist'
 (defun fsvn-file-wc-svn-version (file)
   (let ((format (fsvn-file-wc-version file)))
     (cond
+     ((null format)
+      (error "Not a svn working copy"))
      ((eq format 4) "1.3")
      ((eq format 8) "1.4")
      ((eq format 9) "1.5")
      ((eq format 10) "1.6")
-     ((eq format 12) "1.7")
+     ((and format (<= 12 format) (<= format 29))
+      "1.7")
+     ((and format (<= 30 format))       ;TODO FIXME
+      "1.8")
      (t (error "Not a supported format")))))
 
 (defun fsvn-file-wc-version (file)
   (let ((ctl (fsvn-file-control-directory file)))
-    (when ctl
+    (cond
+     ((null ctl) nil)
+     ((file-exists-p (fsvn-expand-file "entries" ctl))
       (with-temp-buffer
         (insert-file-contents (fsvn-expand-file "entries" ctl) nil 0 16)
         (and (looking-at "^\\([0-9]+\\)$")
-             (string-to-number (match-string 1)))))))
+             (string-to-number (match-string 1)))))
+     ((and (and (require 'esqlite nil t) (esqlite-sqlite-installed-p))
+           (file-exists-p (fsvn-expand-file "wc.db" ctl)))
+      (fsvn-meta--get-database-format ctl))
+     (t nil))))
 
 
 

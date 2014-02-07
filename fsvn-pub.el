@@ -27,6 +27,7 @@
 
 
 (defvar iswitchb-buffer-ignore)
+(defvar iswitchb-buffer-ignore-orig)
 (defvar auto-mode-alist)
 (defvar current-prefix-arg)
 (defvar find-directory-functions)
@@ -372,8 +373,6 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
           (list
            (concat "^" (regexp-quote fsvn-log-sibling-buffer-name) "$")
            (concat "^" (regexp-quote fsvn-log-message-buffer-name) "$")))
-    (unless (boundp 'iswitchb-buffer-ignore)
-      (setq iswitchb-buffer-ignore nil))
     (cond
      (feature
       ;; for ediff
@@ -391,10 +390,15 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
       ;; advice
       (add-hook 'after-change-major-mode-hook 'fsvn-ui-fancy-redraw)
       ;; iswitchb ignore buffers
-      (mapc
-       (lambda (regexp)
-         (add-to-list 'iswitchb-buffer-ignore regexp))
-       ignore-buffers))
+      (eval-after-load 'iswitchb
+        `(let ((ignore-var (if iswitchb-buffer-ignore
+                               'iswitchb-buffer-ignore
+                             ;; this case after call `iswitchb-toggle-ignore'
+                             'iswitchb-buffer-ignore-orig)))
+           (mapc
+            (lambda (regexp)
+              (add-to-list ignore-var regexp))
+            ',ignore-buffers))))
      (t
       (setq auto-mode-alist (delete auto-mode auto-mode-alist))
       (remove-hook 'after-save-hook 'fsvn-after-save-hook)
@@ -402,10 +406,13 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
       (setq file-name-handler-alist (delq file-handler file-name-handler-alist))
       (remove-hook 'pre-command-hook 'fsvn-magic-clear-cache-if-toplevel)
       (remove-hook 'after-change-major-mode-hook 'fsvn-ui-fancy-redraw)
-      (mapc
-       (lambda (regexp)
-         (setq iswitchb-buffer-ignore (delete regexp iswitchb-buffer-ignore)))
-       ignore-buffers)))
+      (when (boundp 'iswitchb-buffer-ignore-orig)
+        (mapc
+         (lambda (regexp)
+           (setq iswitchb-buffer-ignore-orig
+                 (delete regexp iswitchb-buffer-ignore-orig))
+           (setq iswitchb-buffer-ignore (delete regexp iswitchb-buffer-ignore)))
+         ignore-buffers))))
     (unless no-msg
       (message "Now fsvn feature `%s'" (if feature "ON" "OFF")))))
 

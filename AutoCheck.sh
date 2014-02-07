@@ -65,57 +65,47 @@ EOF
 }
 
 # for Unix (Linux)
-UNIX_SVN_1_4_BIN=~/src/subversion-dev/inst-1.4.x/bin
-UNIX_SVN_1_5_BIN=~/src/subversion-dev/inst-1.5.x/bin
 UNIX_SVN_1_6_BIN=~/src/subversion-dev/inst-1.6.x/bin
 UNIX_SVN_1_7_BIN=~/src/subversion-dev/inst-1.7.x/bin
-# EMACS_22_BIN=emacs-22.3
+UNIX_SVN_1_8_BIN=~/src/subversion-dev/inst-1.8.x/bin
 EMACS_23_BIN=emacs-23.3
+EMACS_24_BIN=emacs-24.3
 EMACS_CURRENT_BIN=emacs-current
 EMACS_BIN=emacs
 
 # for Windows
-# TODO not works
-# WIN_SVN_1_4_BIN="c:/usr/local/subversion-dev/svn-win32-1.4.6/bin"
-# WIN_SVN_1_5_BIN="c:/usr/local/subversion-dev/svn-win32-1.5.6/bin"
 WIN_SVN_1_6_BIN="c:/usr/local/subversion-dev/svn-win32-1.6.6/bin"
-WIN_SVN_1_7_BIN="c:/usr/local/subversion-dev/svn-win32-1.7.1/bin"
-MEADOW3_BIN="/cygdrive/c/usr/local/Meadow-dev/bin/Meadow.exe"
-NTEMACS22_BIN="/cygdrive/c/usr/local/NTEmacs/22.2/bin/emacs.exe"
-NTEMACS23_BIN="/cygdrive/c/usr/local/NTEmacs/23.1/bin/emacs.exe"
+WIN_SVN_1_7_BIN="c:/usr/local/subversion-dev/svn-win32-1.7.14/bin"
+WIN_SVN_1_8_BIN="c:/usr/local/subversion-dev/svn-win32-1.8.5/bin"
+NTEMACS23_BIN="/cygdrive/c/usr/local/NTEmacs/23.3/bin/emacs.exe"
+NTEMACS24_BIN="/cygdrive/c/usr/local/NTEmacs/24.2/bin/emacs.exe"
 
 if ! uname | grep -q -i cygwin ; then
 	check /usr/bin ${EMACS_BIN} Makefile
 
-	check "${UNIX_SVN_1_5_BIN}" "${EMACS_22_BIN}" Makefile
-	check "${UNIX_SVN_1_5_BIN}" "${EMACS_23_BIN}" Makefile
-	check "${UNIX_SVN_1_5_BIN}" "${EMACS_CURRENT_BIN}" Makefile
-	check "${UNIX_SVN_1_6_BIN}" "${EMACS_22_BIN}" Makefile
 	check "${UNIX_SVN_1_6_BIN}" "${EMACS_23_BIN}" Makefile
+	check "${UNIX_SVN_1_6_BIN}" "${EMACS_24_BIN}" Makefile
 	check "${UNIX_SVN_1_6_BIN}" "${EMACS_CURRENT_BIN}" Makefile
-	check "${UNIX_SVN_1_7_BIN}" "${EMACS_22_BIN}" Makefile
 	check "${UNIX_SVN_1_7_BIN}" "${EMACS_23_BIN}" Makefile
+	check "${UNIX_SVN_1_7_BIN}" "${EMACS_24_BIN}" Makefile
 	check "${UNIX_SVN_1_7_BIN}" "${EMACS_CURRENT_BIN}" Makefile
+	check "${UNIX_SVN_1_8_BIN}" "${EMACS_23_BIN}" Makefile
+	check "${UNIX_SVN_1_8_BIN}" "${EMACS_24_BIN}" Makefile
+	check "${UNIX_SVN_1_8_BIN}" "${EMACS_CURRENT_BIN}" Makefile
 else
-	check "${WIN_SVN_1_5_BIN}" "${MEADOW3_BIN}" Samples/Makefile.mw32
-	check "${WIN_SVN_1_5_BIN}" "${NTEMACS22_BIN}" Samples/Makefile.nt
-	check "${WIN_SVN_1_5_BIN}" "${NTEMACS23_BIN}" Samples/Makefile.nt23
-	check "${WIN_SVN_1_6_BIN}" "${MEADOW3_BIN}" Samples/Makefile.mw32
-	check "${WIN_SVN_1_6_BIN}" "${NTEMACS22_BIN}" Samples/Makefile.nt
 	check "${WIN_SVN_1_6_BIN}" "${NTEMACS23_BIN}" Samples/Makefile.nt23
-	check "${WIN_SVN_1_7_BIN}" "${MEADOW3_BIN}" Samples/Makefile.mw32
-	check "${WIN_SVN_1_7_BIN}" "${NTEMACS22_BIN}" Samples/Makefile.nt
+	check "${WIN_SVN_1_6_BIN}" "${NTEMACS24_BIN}" Samples/Makefile.nt
 	check "${WIN_SVN_1_7_BIN}" "${NTEMACS23_BIN}" Samples/Makefile.nt23
+	check "${WIN_SVN_1_7_BIN}" "${NTEMACS24_BIN}" Samples/Makefile.nt
+	check "${WIN_SVN_1_8_BIN}" "${NTEMACS23_BIN}" Samples/Makefile.nt23
+	check "${WIN_SVN_1_8_BIN}" "${NTEMACS24_BIN}" Samples/Makefile.nt
 
-	check "${WIN_SVN_1_5_BIN}" "${MEADOW3_BIN}" Samples/Makefile.mw32	check-in-console
-	check "${WIN_SVN_1_5_BIN}" "${NTEMACS22_BIN}" Samples/Makefile.nt	check-in-console
-	check "${WIN_SVN_1_5_BIN}" "${NTEMACS23_BIN}" Samples/Makefile.nt23	check-in-console
-	check "${WIN_SVN_1_6_BIN}" "${MEADOW3_BIN}" Samples/Makefile.mw32	check-in-console
-	check "${WIN_SVN_1_6_BIN}" "${NTEMACS22_BIN}" Samples/Makefile.nt	check-in-console
 	check "${WIN_SVN_1_6_BIN}" "${NTEMACS23_BIN}" Samples/Makefile.nt23 check-in-console
-	check "${WIN_SVN_1_7_BIN}" "${MEADOW3_BIN}" Samples/Makefile.mw32	check-in-console
-	check "${WIN_SVN_1_7_BIN}" "${NTEMACS22_BIN}" Samples/Makefile.nt	check-in-console
+	check "${WIN_SVN_1_6_BIN}" "${NTEMACS24_BIN}" Samples/Makefile.nt	check-in-console
 	check "${WIN_SVN_1_7_BIN}" "${NTEMACS23_BIN}" Samples/Makefile.nt23 check-in-console
+	check "${WIN_SVN_1_7_BIN}" "${NTEMACS24_BIN}" Samples/Makefile.nt	check-in-console
+	check "${WIN_SVN_1_8_BIN}" "${NTEMACS23_BIN}" Samples/Makefile.nt23 check-in-console
+	check "${WIN_SVN_1_8_BIN}" "${NTEMACS24_BIN}" Samples/Makefile.nt	check-in-console
 fi
 
 make clean -f ${makefile}

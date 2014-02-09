@@ -306,7 +306,7 @@ FIXME Does Emacs have list like this? "
   ;;FIXME dirty
   (when (and scheme segments)
     (when (and (string= scheme "file") (memq system-type '(windows-nt)))
-      (setcar segments (replace-regexp-in-string "^\\([a-zA-Z]\\):$" "\\1|" (car segments)))))
+      (setcar segments (replace-regexp-in-string "\\`\\([a-zA-Z]\\):\\'" "\\1|" (car segments)))))
   (mapconcat 'identity segments "/"))
 
 (defun fsvn-magic-parse-file-as-writable (file)
@@ -341,7 +341,7 @@ FIXME Does Emacs have list like this? "
   ;;FIXME dirty
   (when (and scheme segments)
     (when (and (string= scheme "file") (memq system-type '(windows-nt)))
-      (setcar segments (replace-regexp-in-string "^\\([a-zA-Z]\\)|$" "\\1:" (car segments)))))
+      (setcar segments (replace-regexp-in-string "\\`\\([a-zA-Z]\\)|\\'" "\\1:" (car segments)))))
   (mapconcat 'identity segments "/"))
 
 (defun fsvn-magic-expand-file-name (file &optional directory)
@@ -485,7 +485,7 @@ FIXME Does Emacs have list like this? "
      ((member (fsvn-urlrev-url urlrev) roots)
       ;; when guessed root directory..
       directory)
-     ((string-match "/$" directory)
+     ((string-match "/\\'" directory)
       (substring directory 0 -1))
      (t
       directory))))
@@ -497,7 +497,7 @@ FIXME Does Emacs have list like this? "
      ((member (concat (fsvn-urlrev-url urlrev) "/") roots)
       ;; when guessed root directory..
       filename)
-     ((string-match "/$" filename)
+     ((string-match "/\\'" filename)
       filename)
      (t
       (fsvn-magic-create-name (fsvn-urlrev-dirname urlrev))))))
@@ -689,7 +689,7 @@ local (non-wc) -> remote : svn add -> svn commit
   (eq (string-match fsvn-magic-file-name-regexp file) 0))
 
 (defun fsvn-magic-file-name-all-completions (file directory)
-  (let ((regexp (concat "^" (regexp-quote file))))
+  (let ((regexp (concat "\\`" (regexp-quote file))))
     (fsvn-magic-each-directory-entry directory entry
       (let ((name (fsvn-xml-lists->list->entry=>name$ entry)))
         (cond
@@ -700,7 +700,7 @@ local (non-wc) -> remote : svn add -> svn commit
           name))))))
 
 (defun fsvn-magic-file-name-completion (file directory &optional predicate)
-  (let ((regexp (concat "^" (regexp-quote file)))
+  (let ((regexp (concat "\\`" (regexp-quote file)))
         completions)
     (unless predicate
       (setq predicate (lambda (x) t)))

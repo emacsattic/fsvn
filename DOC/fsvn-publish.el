@@ -22,13 +22,13 @@
   (expand-file-name "Wiki" fsvn-publish-doc-directory))
 
 (defun fsvn-publish-content-lang (html)
-  (let ((regexp "\\.html\\.\\(..\\)$"))
+  (let ((regexp "\\.html\\.\\(..\\)\\'"))
     (string-match regexp html)
     (match-string 1 html)))
 
 (defun fsvn-publish-html-file (piki)
   (let ((path (file-relative-name piki fsvn-publish-wiki-directory)))
-    (unless (string-match "/\\([^/]+\\)-\\(..\\)\\.piki$" piki)
+    (unless (string-match "/\\([^/]+\\)-\\(..\\)\\.piki\\'" piki)
       (error "Invalid filename %s" piki))
     (let ((name (match-string 1 piki))
           (lang (match-string 2 piki))
@@ -48,7 +48,7 @@
     ret))
 
 (defun fsvn-publish-files ()
-  (fsvn-publish-directory-files fsvn-publish-wiki-directory "\\.piki$"))
+  (fsvn-publish-directory-files fsvn-publish-wiki-directory "\\.piki\\'"))
 
 (defun fsvn-publish ()
   (interactive)

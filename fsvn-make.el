@@ -181,7 +181,7 @@
            (error "%s not exists." src))
          (copy-file src dest t)
          (set-file-modes dest ?\644))))
-   (directory-files "./images" nil "\\.xpm$")))
+   (directory-files "./images" nil "\\.xpm\\'")))
 
 (defun fsvn-make-test ()
   (mapc

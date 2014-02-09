@@ -183,13 +183,13 @@ Save selected window, not contain point."
       ret)))
 
 (defun fsvn-string-rm-lspace (string)
-  (replace-regexp-in-string "^[ \t\n]+" "" string))
+  (replace-regexp-in-string "\\`[ \t\n]+" "" string))
 
 (defun fsvn-string-rm-rspace (string)
-  (replace-regexp-in-string "[ \t\n]+$" "" string))
+  (replace-regexp-in-string "[ \t\n]+\\'" "" string))
 
 (defun fsvn-string-rm-space (string)
-  (replace-regexp-in-string "\\(?:^[ \t\n]+\\|[ \t\n]+$\\)" "" string))
+  (replace-regexp-in-string "\\(?:\\`[ \t\n]+\\|[ \t\n]+\\'\\)" "" string))
 
 (defun fsvn-string-force-number (string &optional default-value)
   "Return string as number, return zero if failed convert."
@@ -337,13 +337,13 @@ Save selected window, not contain point."
       (setq list (cdr list)))))
 
 (defun fsvn-member-startswith (start-string list)
-  (fsvn-member-regexp (concat "^" (regexp-quote start-string)) list))
+  (fsvn-member-regexp (concat "\\`" (regexp-quote start-string)) list))
 
 (defun fsvn-any-startswith (list string)
   "STRING startwith any LIST item."
   (catch 'match
     (while list
-      (when (string-match (concat "^" (regexp-quote (car list))) string)
+      (when (string-match (concat "\\`" (regexp-quote (car list))) string)
         (throw 'match list))
       (setq list (cdr list)))))
 
@@ -410,7 +410,7 @@ Use %% to put a single % into the output.
   (defvar vc-mode)
   (and (boundp 'vc-mode)
        (stringp vc-mode)
-       (string-match "^ SVN" vc-mode)))
+       (string-match "\\` SVN" vc-mode)))
 
 
 
@@ -550,7 +550,7 @@ Use %% to put a single % into the output.
   (let (ret)
     (mapc
      (lambda (p)
-       (when (string-match "^fsvn" (process-name p))
+       (when (string-match "\\`fsvn" (process-name p))
          (mapc
           (lambda (string)
             (when (and (file-name-absolute-p string)
@@ -604,7 +604,7 @@ Use %% to put a single % into the output.
     ret))
 
 (defun fsvn-directory-unsaved-buffers (directory)
-  (let ((regex (concat "^" (regexp-quote (directory-file-name directory)) "/"))
+  (let ((regex (concat "\\`" (regexp-quote (directory-file-name directory)) "/"))
         ret)
     (mapc
      (lambda (buffer)

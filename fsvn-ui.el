@@ -229,9 +229,9 @@ This is what the do-commands look for, and what the mark-commands store.")
   (cond
    ((fsvn-string-assoc word fsvn-word-irregular-plural-alist)
     (cdr (fsvn-string-assoc word fsvn-word-irregular-plural-alist)))
-   ((string-match "\\(sh\\|ch\\|o\\|s\\|x\\)$" word)
+   ((string-match "\\(sh\\|ch\\|o\\|s\\|x\\)\\'" word)
     (concat word "es"))
-   ((string-match "\\(y\\)$" word)
+   ((string-match "\\(y\\)\\'" word)
     (replace-match "ies" nil nil word 1))
    (t
     (concat word "s"))))

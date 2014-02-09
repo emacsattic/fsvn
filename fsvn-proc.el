@@ -37,11 +37,11 @@
     nil))
 
 (defun fsvn-start-process (buffer &rest args)
-  (fsvn-process-environment
-   (let* ((real-args (fsvn-command-args-canonicalize args))
-          (coding-system-for-read (fsvn-process-coding-system real-args))
-          (command (fsvn-svn-proper-command real-args)))
-     (fsvn-debug real-args)
+  (let* ((real-args (fsvn-command-args-canonicalize args))
+         (coding-system-for-read (fsvn-process-coding-system real-args))
+         (command (fsvn-svn-proper-command real-args)))
+    (fsvn-debug real-args)
+    (fsvn-process-environment
      (apply 'start-file-process "fsvn" buffer command real-args))))
 
 (defun fsvn-start-command (subcommand buffer &rest args)
@@ -59,17 +59,17 @@
 This is synchronous call, so cannot handle password prompt. Append --non-interactive arg
 explicitly in calling function.
 "
-  (fsvn-process-environment
-   (let* ((real-args (fsvn-command-args-canonicalize args))
-          (coding-system-for-read (fsvn-process-coding-system real-args))
-          (command (fsvn-svn-proper-command real-args)))
-     (when (and (bufferp buffer) (> (buffer-size buffer) 0))
-       (with-current-buffer buffer
-         (goto-char (point-max))))
-     (fsvn-debug real-args)
-     (prog1
-         (apply 'process-file command nil buffer nil real-args)
-       (fsvn-debug buffer)))))
+  (let* ((real-args (fsvn-command-args-canonicalize args))
+         (coding-system-for-read (fsvn-process-coding-system real-args))
+         (command (fsvn-svn-proper-command real-args)))
+    (when (and (bufferp buffer) (> (buffer-size buffer) 0))
+      (with-current-buffer buffer
+        (goto-char (point-max))))
+    (fsvn-debug real-args)
+    (prog1
+        (fsvn-process-environment
+         (apply 'process-file command nil buffer nil real-args))
+      (fsvn-debug buffer))))
 
 (defun fsvn-call-command (subcommand buffer &rest args)
   (apply 'fsvn-call-process buffer subcommand (fsvn-command-append-argument subcommand args)))
@@ -340,7 +340,7 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
                (unless (file-directory-p url)
                  (when (setq cs (fsvn-file-guessed-coding-system url))
                    (throw 'guessed cs)))))))
-          ((string-match "^--[a-zA-Z]" arg)
+          ((string-match "\\`--[a-zA-Z]" arg)
            (setq ignore (assoc arg '("--targets" "--file"))))
           ((not (fsvn-url-local-p arg)))
           (t

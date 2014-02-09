@@ -20,7 +20,7 @@
 
 
 (defconst fsvn-url-encoding fsvn-svn-common-coding-system)
-(defconst fsvn-url-with-revision-regexp "^\\(.*\\)@\\([^/@]*\\)\\(@*\\)$")
+(defconst fsvn-url-with-revision-regexp "\\`\\(.*\\)@\\([^/@]*\\)\\(@*\\)\\'")
 
 ;; url utility
 
@@ -114,23 +114,23 @@
 
 (defun fsvn-url-ediff-filename (url)
   (let ((tmp (directory-file-name url)))
-    (string-match "\\([^/]+\\)/?$" tmp)
+    (string-match "\\([^/]+\\)/?\\'" tmp)
     (match-string 1 tmp)))
 
 (defun fsvn-url-directory-file-name (url)
-  (if (string-match "/$" url)
+  (if (string-match "/\\'" url)
       (substring url 0 -1)
     url))
 
 (defun fsvn-url-dirname (url)
   (let ((tmp (directory-file-name url)))
-    (if (string-match "^\\(.*/\\)\\([^/]+\\)$" tmp)
+    (if (string-match "\\`\\(.*/\\)\\([^/]+\\)\\'" tmp)
         (match-string 1 tmp)
       tmp)))
 
 (defun fsvn-url-filename (url)
   (let ((tmp (directory-file-name url)))
-    (when (string-match "\\([^/]+\\)$" tmp)
+    (when (string-match "\\([^/]+\\)\\'" tmp)
       (match-string 1 tmp))))
 
 (defun fsvn-url-relative-name (full-url base-url)
@@ -165,13 +165,13 @@
     (fsvn-url-filename (car urlobj))))
 
 (defun fsvn-url-as-directory (url)
-  (if (string-match "/$" url)
+  (if (string-match "/\\'" url)
       url
     (concat url "/")))
 
 ;; (defun fsvn-urlrev-read-only-p (urlrev)
 ;;   (if (fsvn-url-repository-p urlrev)
-;;       (not (string-match "@\\(HEAD\\)$" urlrev))))
+;;       (not (string-match "@\\(HEAD\\)\\'" urlrev))))
 
 (defun fsvn-url-p (string)
   (or (fsvn-url-repository-p string)
@@ -179,7 +179,7 @@
       (not (fsvn-magic-file-name-absolute-p string))))
 
 (defun fsvn-url-repository-p (url)
-  (string-match (concat "^" (regexp-opt fsvn-svn-url-scheme-segment-list)) url))
+  (string-match (concat "\\`" (regexp-opt fsvn-svn-url-scheme-segment-list)) url))
 
 (defun fsvn-url-local-p (url)
   (and (not (fsvn-url-repository-p url))
@@ -188,24 +188,24 @@
 
 (defun fsvn-url-contains-p (parent url)
   "URL is child of PARENT or same as PARENT then return non-nil."
-  (or (string-match (concat "^" (regexp-quote (fsvn-url-as-directory parent))) url)
+  (or (string-match (concat "\\`" (regexp-quote (fsvn-url-as-directory parent))) url)
       (fsvn-file= parent url)))
 
 (defun fsvn-url-descendant-p (parent url)
   "URL is descendant of PARENT then return non-nil."
   (and (not (string= (directory-file-name parent) (directory-file-name url)))
-       (string-match (concat "^" (regexp-quote (fsvn-url-as-directory parent))) url)))
+       (string-match (concat "\\`" (regexp-quote (fsvn-url-as-directory parent))) url)))
 
 (defun fsvn-url-child-p (parent url)
   (and (not (string= (directory-file-name parent) (directory-file-name url)))
-       (string-match (concat "^" (regexp-quote (fsvn-url-as-directory parent)) "[^/]+/?$") url)))
+       (string-match (concat "\\`" (regexp-quote (fsvn-url-as-directory parent)) "[^/]+/?\\'") url)))
 
 (defun fsvn-url-grand-child-p (parent url)
   (and (fsvn-url-descendant-p parent url)
        (not (fsvn-url-child-p parent url))))
 
 (defun fsvn-url-only-child (base-url url)
-  (when (string-match (concat "^\\(" (regexp-quote (fsvn-url-as-directory base-url)) "[^/]+\\)/?") url)
+  (when (string-match (concat "\\`\\(" (regexp-quote (fsvn-url-as-directory base-url)) "[^/]+\\)/?") url)
     (match-string 1 url)))
 
 (defun fsvn-url-remove-authority (url)
@@ -245,9 +245,9 @@
 
 (if (memq system-type '(windows-nt))
     (defun fsvn-file-name-root-p (file)
-      (string-match "^[a-zA-Z]:/?$" file))
+      (string-match "\\`[a-zA-Z]:/?\\'" file))
   (defun fsvn-file-name-root-p (file)
-    (string-match "^/$" file)))
+    (string-match "\\`/\\'" file)))
 
 (defun fsvn-file-name-directory (file)
   (directory-file-name (fsvn-expand-file (file-name-directory file))))
@@ -257,9 +257,9 @@
 
 (defun fsvn-file-name-nondirectory (url)
   (cond
-   ((string-match "/\\([^/]+\\)/?$" url)
+   ((string-match "/\\([^/]+\\)/?\\'" url)
     (match-string 1 url))
-   ((string-match "^\\([^/]+\\)$" url)
+   ((string-match "\\`\\([^/]+\\)\\'" url)
     (match-string 1 url))
    (t
     (error "Error while parsing filename"))))
@@ -292,7 +292,7 @@
             (when ext (concat "." ext)))))
 
 (defun fsvn-directory-name-as-repository (directory)
-  (if (string-match "^/" directory)
+  (if (string-match "\\`/" directory)
       (concat "file://" directory)
     (concat "file:///" directory)))
 
@@ -342,7 +342,7 @@
     (setq src-diff (nreverse src-list))
     (setq dest-diff (nreverse dest-list))
     ;; Match to `.'
-    (if (string-match "^\\([^.]+\\)\\." (concat same))
+    (if (string-match "\\`\\([^.]+\\)\\." (concat same))
         (let ((rest (match-string 1 (concat same))))
           (cons (concat src-diff rest) (concat dest-diff rest)))
       (cons (concat src-diff) (concat dest-diff)))))

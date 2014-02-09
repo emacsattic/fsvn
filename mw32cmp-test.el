@@ -57,7 +57,7 @@
 
 
 (defun mw32cmp-pseudo-registry-concat-key (parent name)
-  (if (string-match "\\\\$" parent)
+  (if (string-match "\\\\\\'" parent)
       (concat parent name)
     (concat parent "\\\\" name)))
 

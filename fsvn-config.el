@@ -20,7 +20,7 @@ This configuration switch by repository root by `fsvn-repository-alist'."
   (let ((config (catch 'matched
                   (mapc
                    (lambda (x)
-                     (when (and x (string-match (concat "^" (regexp-quote (car x))) url))
+                     (when (and x (string-match (concat "\\`" (regexp-quote (car x))) url))
                        (throw 'matched x)))
                    fsvn-repository-alist)
                   nil))

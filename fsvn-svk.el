@@ -106,7 +106,7 @@ If there is executing problem in windows/cygwin then set path to perl.exe."
       (fsvn-directory-name-as-repository dir))))
 
 (defun fsvn-svk-depotpath-url (depotpath)
-  (when (string-match "^//\\(.*\\)" depotpath)
+  (when (string-match "\\`//\\(.*\\)" depotpath)
     (fsvn-expand-url (match-string 1 depotpath) (fsvn-svk-depotmap-url))))
 
 (defun fsvn-svk-mirrored-repository-url (file)
@@ -295,7 +295,7 @@ If there is executing problem in windows/cygwin then set path to perl.exe."
     proc))
 
 (defun fsvn-svk-depotpath-name (depotpath)
-  (if (string-match "/$" depotpath)
+  (if (string-match "/\\'" depotpath)
       (substring depotpath 0 -1)
     depotpath))
 

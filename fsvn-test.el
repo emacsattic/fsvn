@@ -149,7 +149,7 @@ To show and see result.
 
 (defun fsvn-test-unbound-functions ()
   (let ((targetp (lambda (s)
-                   (and (string-match "^fsvn-test-" (symbol-name s))
+                   (and (string-match "\\`fsvn-test-" (symbol-name s))
                         (functionp s)
                         (listp (symbol-function s))))))
     (mapatoms

@@ -67,7 +67,7 @@
                (t
                 (setq messages (cons msg messages))
                 (setq time (format-time-string "%s" (nth 5 (file-attributes f))))
-                (unless (string-match (concat "^" time) (fsvn-file-name-nondirectory f))
+                (unless (string-match (concat "\\`" time) (fsvn-file-name-nondirectory f))
                   (while (file-exists-p (setq file (make-temp-name (fsvn-expand-file time d)))))
                   (rename-file f file)
                   (setq renamed (1+ renamed))))))
@@ -368,11 +368,11 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
          (funcall 'ad-activate (nth 0 x))))
      fsvn-advised-alist)
     (setq file-handler (assoc fsvn-magic-file-name-regexp file-name-handler-alist))
-    (setq auto-mode (list (concat "@\\(?:" fsvn-revision-regexp "\\)$") 'ignore t))
+    (setq auto-mode (list (concat "@\\(?:" fsvn-revision-regexp "\\)\\'") 'ignore t))
     (setq ignore-buffers
           (list
-           (concat "^" (regexp-quote fsvn-log-sibling-buffer-name) "$")
-           (concat "^" (regexp-quote fsvn-log-message-buffer-name) "$")))
+           (concat "\\`" (regexp-quote fsvn-log-sibling-buffer-name) "\\'")
+           (concat "\\`" (regexp-quote fsvn-log-message-buffer-name) "\\'")))
     (cond
      (feature
       ;; for ediff
@@ -445,7 +445,11 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
     (list file url args)))
 
 (defun fsvn-cmd-read-upgrade-args ()
-  (let* ((dir (fsvn-read-directory-name "Upgrade directory: " nil nil t))
+  (let* ((current (fsvn-file-wc-svn-version default-directory))
+         (svn-ver fsvn-svn-version)
+         (prompt (format "Upgrade directory (%s -> %s): "
+                         current svn-ver))
+         (dir (fsvn-read-directory-name prompt nil nil t))
          (args (fsvn-browse-cmd-read-wc-path-with-args "upgrade")))
     (list dir args)))
 
@@ -583,7 +587,7 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
       (fsvn-each-browse-buffer
        (let ((url (fsvn-urlrev-url urlrev))
              (root (fsvn-buffer-repos-root)))
-         (when (and root (string-match (concat "^" (regexp-quote root) "\\(.*\\)") url))
+         (when (and root (string-match (concat "\\`" (regexp-quote root) "\\(.*\\)") url))
            (let ((regexp (format fsvn-browse-re-format-subdir (match-string 1 url))))
              (save-excursion
                (goto-char (point-min))

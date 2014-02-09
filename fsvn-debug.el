@@ -52,7 +52,7 @@
   (interactive)
   (mapatoms
    (lambda (x)
-     (when (string-match "^fsvn" (symbol-name x))
+     (when (string-match "\\`fsvn" (symbol-name x))
        (when (fboundp x)
          (fset x nil))
        (when (boundp x)

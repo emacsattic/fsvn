@@ -416,7 +416,7 @@ Keybindings:
   (fsvn-move-to-filename))
 
 (defun fsvn-select-file-remove-file-hierarchy (file)
-  (let ((regexp (format "^%s\\(/\\|$\\)" (directory-file-name file)))
+  (let ((regexp (format "\\`%s\\(/\\|\\'\\)" (directory-file-name file)))
         cur)
     (save-excursion
       (fsvn-select-file-first-file)

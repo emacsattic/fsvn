@@ -353,31 +353,36 @@ value: command")
   (cond
    ((member (car-safe flat-args) '("upgrade"))
     fsvn-svn-command-internal)
-   (t
-    (condition-case err
-        (let* ((args flat-args)
-               (file (catch 'done
-                       (while args
-                         (cond
-                          ((fsvn-url-local-p (car args))
-                           (throw 'done (car args)))
-                          ((string= (car args) "--targets")
-                           ;; ignore next arg
-                           (setq args (cdr args))
-                           (let* ((targets (get-text-property 0 'fsvn-target-files (car args)))
-                                  (file (fsvn-find-if 'fsvn-url-local-p targets)))
-                             (when file
-                               (throw 'done file))))
-                          ((string= (car args) "--file")
-                           ;; just ignore next arg
-                           (setq args (cdr args))))
-                         (setq args (cdr args)))))
-               (ver (fsvn-file-wc-svn-version (or file default-directory))))
+   ((condition-case err
+        (fsvn-let*
+            ((args flat-args)
+             (file (catch 'done
+                     (while args
+                       (cond
+                        ((fsvn-url-local-p (car args))
+                         (throw 'done (car args)))
+                        ((string= (car args) "--targets")
+                         ;; ignore next arg
+                         (setq args (cdr args))
+                         (let* ((targets (get-text-property 0 'fsvn-target-files (car args)))
+                                (file (fsvn-find-if 'fsvn-url-local-p targets)))
+                           (when file
+                             (throw 'done file))))
+                        ((string= (car args) "--file")
+                         ;; just ignore next arg
+                         (setq args (cdr args))))
+                       (setq args (cdr args)))))
+             (ver (fsvn-file-wc-svn-version file)))
           (fsvn-svn-fetch-proper-version ver))
       (error
        (message "%s" err)
-       ;; default command
-       fsvn-svn-command-internal)))))
+       nil)))
+   ((fsvn-url-local-p default-directory)
+    (let ((ver (fsvn-file-wc-svn-version default-directory)))
+      (fsvn-svn-fetch-proper-version ver)))
+   (t
+    ;; default command
+    fsvn-svn-command-internal)))
 
 (defun fsvn-svn-fetch-proper-version (&optional format-version)
   (catch 'found
@@ -398,7 +403,7 @@ value: command")
     (let ((raw-version (car (fsvn-text-buffer-line-as-list)))
           version)
       ;; trim "1.8.6-dev" like version
-      (unless (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" raw-version)
+      (unless (string-match "\\`\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" raw-version)
         (error "Unsupported version"))
       (match-string 1 raw-version))))
 
@@ -622,12 +627,12 @@ value: command")
    fsvn-svn-url-scheme-list))
 
 (defun fsvn-revision-number-p (string)
-  (if (string-match "^[0-9]+$" string)
+  (if (string-match "\\`[0-9]+\\'" string)
       (string-to-number string)
     nil))
 
 (defun fsvn-revision-date-p (string)
-  (if (string-match (concat "^" fsvn-revision-date-regexp "$") string)
+  (if (string-match (concat "\\`" fsvn-revision-date-regexp "\\'") string)
       t
     nil))
 
@@ -691,7 +696,7 @@ value: command")
        (car propname))))
    fsvn-property-list))
 
-(defconst fsvn-svn-valid-propname-regexp "^[a-zA-Z:_][a-zA-Z-.:_]*$")
+(defconst fsvn-svn-valid-propname-regexp "\\`[a-zA-Z:_][a-zA-Z-.:_]*\\'")
 
 ;; http://svn.collab.net/repos/svn/trunk/subversion/libsvn_subr/properties.c
 (defun fsvn-svn-valid-propname-p (propname)
@@ -699,7 +704,7 @@ value: command")
   (string-match fsvn-svn-valid-propname-regexp propname))
 
 (defun fsvn-propname-svn-texture-p (propname)
-  (string-match "^svn:" propname))
+  (string-match "\\`svn:" propname))
 
 (defcustom fsvn-svn-home-directory
   (let (tmp)
@@ -825,8 +830,10 @@ value: command")
       (or (and (require 'esqlite nil t)
                (esqlite-sqlite-installed-p)
                (fsvn-meta--get-database-format ctl))
-          ;; regard as maximum released format
-          30))
+          ;; regard as maximum format of binary
+          (cond
+           ((version< fsvn-svn-version "1.8") 29)
+           (t 30))))
      ((file-exists-p (fsvn-expand-file "entries" ctl))
       (with-temp-buffer
         (insert-file-contents (fsvn-expand-file "entries" ctl) nil 0 16)
@@ -837,15 +844,17 @@ value: command")
 
 
 (defconst fsvn-svn-date-regexp
-  "^\
-\\([0-9]\\{4\\}\\)-\\([0-9]\\{2\\}\\)-\\([0-9]\\{2\\}\\)\
-T\
-\\([0-9]\\{2\\}\\):\\([0-9]\\{2\\}\\):\\([0-9]\\{2\\}\\)\
-\\.\
-\\([0-9]\\{6\\}\\)\
-Z\
-$"
-  )
+  (eval-when-compile
+    (concat
+     "\\`"
+     "\\([0-9]\\{4\\}\\)-\\([0-9]\\{2\\}\\)-\\([0-9]\\{2\\}\\)"
+     "T"
+     "\\([0-9]\\{2\\}\\):\\([0-9]\\{2\\}\\):\\([0-9]\\{2\\}\\)"
+     "\\."
+     "\\([0-9]\\{6\\}\\)"
+     "Z"
+     "\\'"
+     )))
 
 ;; todo elint bug?
 ;; (setq elint-unknown-builtin-args (delq (assq 'encode-time elint-unknown-builtin-args) elint-unknown-builtin-args))
@@ -875,18 +884,18 @@ $"
        (setq sym (cadr values))
        (cond
         ((fsvn-url-repository-p real))
-        ((string-match "^\\.\\./" real)
+        ((string-match "\\`\\.\\./" real)
          ;; relate path from current directory
          (setq base-url (file-name-directory (fsvn-xml-info->entry=>url$ pinfo)))
          (setq real (fsvn-expand-url (replace-match "" nil nil real) base-url)))
-        ((string-match "^\\^/" real)
+        ((string-match "\\`\\^/" real)
          ;; relate path from repository root
          (setq base-url (fsvn-xml-info->entry=>repository=>root$ pinfo))
          (setq real (fsvn-expand-url (replace-match "" nil nil real) base-url)))
-        ((string-match "^//" real)
+        ((string-match "\\`//" real)
          ;;FIXME not depend on scheme
          )
-        ((string-match "^/" real)
+        ((string-match "\\`/" real)
          ;;FIXME relate path from server root
          ))
        (cons real sym)))

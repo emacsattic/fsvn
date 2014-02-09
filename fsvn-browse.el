@@ -725,7 +725,7 @@ PATH is each executed path."
              (when (fsvn-deps-file-registered-p file)
                file))
            (directory-files src-dir t (concat "^" (regexp-quote (car prefix))))))
-    (setq regexp (concat "^" (regexp-quote (car prefix)) "\\(.*\\)$"))
+    (setq regexp (concat "\\`" (regexp-quote (car prefix)) "\\(.*\\)\\'"))
     (mapcar
      (lambda (src-file)
        (let ((src-name (fsvn-file-name-nondirectory src-file))

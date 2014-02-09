@@ -333,7 +333,7 @@ Optional arg FUZZY non-nil means match to all diff message."
       (delq nil
             (mapcar
              (lambda (name)
-               (and (string-match "^[0-9]+$" name)
+               (and (string-match "\\`[0-9]+\\'" name)
                     (string-to-number name)))
              files))
       '>))))
@@ -785,7 +785,7 @@ Keybindings:
   (fsvn-url-branches/tags urlrev "tags"))
 
 (defun fsvn-url-branches/tags (urlrev name)
-  (when (string-match "^\\(.*\\)/trunk" urlrev)
+  (when (string-match "\\`\\(.*\\)/trunk" urlrev)
     (let ((rev (or (fsvn-urlrev-revision urlrev) "HEAD"))
           (b/t (concat (match-string 1 urlrev) "/" name "/")))
       (delq nil

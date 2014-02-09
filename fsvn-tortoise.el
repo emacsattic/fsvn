@@ -224,7 +224,7 @@
            (setq alist
                  (fsvn-mapitem
                   (lambda (value)
-                    (when (string-match "^\\([^=]+\\)=\\(.*\\)" value)
+                    (when (string-match "\\`\\([^=]+\\)=\\(.*\\)" value)
                       (cons (match-string 1 value) (match-string 2 value))))
                   values))
            (cons (fsvn-svn-autoprop-wildcard->regexp key) alist)))))

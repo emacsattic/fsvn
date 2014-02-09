@@ -218,7 +218,7 @@ This list sorted revision descending.
                     (setq current copyfrom)
                     (setq ret (cons (cons rev copyfrom) ret))
                     (throw 'done t))
-                   ((string-match (concat "^" (regexp-quote logpath) "/") target)
+                   ((string-match (concat "\\`" (regexp-quote logpath) "/") target)
                     ;; match to ancestor of the target
                     ;; may exact match to target
                     (setq next (fsvn-expand-url (substring target (match-end 0)) copyfrom)))))))
@@ -299,7 +299,7 @@ This list sorted revision descending.
   (let ((root (fsvn-xml-info->entry=>repository=>root$ info))
         (url (fsvn-xml-info->entry=>url$ info))
         ret)
-    (when (string-match (concat "^\\(" (regexp-quote root) "\\)") url)
+    (when (string-match (concat "\\`\\(" (regexp-quote root) "\\)") url)
       (setq ret (replace-match "" nil nil url 1))
       (when (string= ret "")
         (setq ret "/")))
@@ -377,7 +377,7 @@ This list sorted revision descending.
 
 (defun fsvn-repository-path (root urlrev)
   (let ((url (fsvn-urlrev-url urlrev)))
-    (when (string-match (concat "^" (regexp-quote  root)) url)
+    (when (string-match (concat "\\`" (regexp-quote  root)) url)
       (replace-match "" nil nil url 0))))
 
 (defun fsvn-find-parent-working-copy (directory)

@@ -128,7 +128,7 @@ The value of DEFAULT is not a number, allow to enter a nil value."
 
 (defun fsvn-read-branch/tag (url dirname prompt)
   (let ((default url))
-    (when (string-match "^\\(.*\\)/trunk" url)
+    (when (string-match "\\`\\(.*\\)/trunk" url)
       (setq default (concat (match-string 1 url) "/" dirname "/")))
     (fsvn-completing-read-url prompt default t)))
 
@@ -345,11 +345,11 @@ The value of DEFAULT is not a number, allow to enter a nil value."
           (setq urlrev (fsvn-electric-select-log fsvn-complete-processing-revision-urlrev))
           (when urlrev
             (insert (fsvn-get-revision-string (fsvn-urlrev-revision urlrev)))))))
-     ((string-match "^[0-9]+$" value)
+     ((string-match "\\`[0-9]+\\'" value)
       ;; do nothing
       (fsvn-complete-completion-window-delete)
       (fsvn-display-momentary-message " [Number context]"))
-     ((string-match "^{" value)
+     ((string-match "\\`{" value)
       ;; do nothing
       (fsvn-complete-completion-window-delete)
       (fsvn-display-momentary-message " [Date context]"))
@@ -536,14 +536,14 @@ The value of DEFAULT is not a number, allow to enter a nil value."
 (defun fsvn-complete-url-local-file-previous-segment (string)
   (cond
    ;; for windows
-   ((string-match "^file:///\\([a-zA-Z]:.*\\)/[^/]*$" string)
+   ((string-match "\\`file:///\\([a-zA-Z]:.*\\)/[^/]*\\'" string)
     (match-string 1 string))
    ;; for windows
-   ((string-match "^file:///\\([a-zA-Z]:\\)" string)
+   ((string-match "\\`file:///\\([a-zA-Z]:\\)" string)
     (match-string 1 string))
-   ((string-match "^file://\\(/.*?\\)[^/]*$" string)
+   ((string-match "\\`file://\\(/.*?\\)[^/]*\\'" string)
     (match-string 1 string))
-   ((string-match "^file://\\(/.*?\\)/$" string)
+   ((string-match "\\`file://\\(/.*?\\)/\\'" string)
     (match-string 1 string))
    (t
     (fsvn-complete-url-previous-segment string))))
@@ -552,13 +552,13 @@ The value of DEFAULT is not a number, allow to enter a nil value."
   (cond
    ((fsvn-file-name-root-p string)
     string)
-   ((string-match "^\\(.*\\)/$" string)
+   ((string-match "\\`\\(.*\\)/\\'" string)
     (match-string 1 string))
-   ((string-match "^\\(.*\\)/[^/]+$" string)
+   ((string-match "\\`\\(.*\\)/[^/]+\\'" string)
     (match-string 1 string))))
 
 (defun fsvn-complete-url-host-segment-p (contents)
-  (let ((regexp (concat "^" (regexp-opt (fsvn-delete "file" fsvn-svn-url-scheme-list) t) ":/+\\([^/]+\\)?$")))
+  (let ((regexp (concat "\\`" (regexp-opt (fsvn-delete "file" fsvn-svn-url-scheme-list) t) ":/+\\([^/]+\\)?\\'")))
     (string-match regexp contents)))
 
 (defun fsvn-complete-url-local-repository-p (contents)
@@ -567,11 +567,11 @@ The value of DEFAULT is not a number, allow to enter a nil value."
       (not (fsvn-any-startswith (fsvn-gather-root) contents)))))
 
 (defun fsvn-complete-url-last-segment (url)
-  (when (string-match "/\\([^/]+/?\\)$" url)
+  (when (string-match "/\\([^/]+/?\\)\\'" url)
     (match-string 1 url)))
 
 (defun fsvn-complete-url-filename (string)
-  (if (string-match "/\\([^/]+\\)$" string)
+  (if (string-match "/\\([^/]+\\)\\'" string)
       (match-string 1 string)
     ""))
 
@@ -601,7 +601,7 @@ The value of DEFAULT is not a number, allow to enter a nil value."
     (cdr (fsvn-string-assoc dir fsvn-complete-completion-repository-cache))))
 
 (defun fsvn-complete-url-repository-p (url)
-  (string-match (concat "^" (regexp-opt fsvn-svn-url-scheme-list) ":") url))
+  (string-match (concat "\\`" (regexp-opt fsvn-svn-url-scheme-list) ":") url))
 
 (defun fsvn-complete-subcommand-args-action ()
   (interactive)
@@ -660,7 +660,7 @@ The value of DEFAULT is not a number, allow to enter a nil value."
     (mapcar
      (lambda (x)
        (cond
-        ((and (string-match "^-[^-]$" x)
+        ((and (string-match "\\`-[^-]\\'" x)
               (setq tmp (fsvn-subcommand-assoc-argument x (cdr fsvn-complete-reading-subcommand))))
          ;; get long option
          (caar tmp))
@@ -752,7 +752,7 @@ The value of DEFAULT is not a number, allow to enter a nil value."
     (cond
      ((and (eq next-applicant all-applicant)
            (or (null current)
-               (not (string-match "^-" current))))
+               (not (string-match "\\`-" current))))
       (setq collection 'fsvn-complete-url-action))
      ((and (null current) (null next-applicant))
       (setq collection toplevel)))

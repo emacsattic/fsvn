@@ -247,7 +247,7 @@
 (defun mw32cmp-registry-pseudo-parse-key (key)
   "return cons cell (rootkey . subkey)"
   (when (stringp key)
-    (when (string-match "^\\([^\\\\]+\\)\\(?:\\\\\\(.*\\)\\)?" key)
+    (when (string-match "\\`\\([^\\\\]+\\)\\(?:\\\\\\(.*\\)\\)?" key)
       (cons (match-string 1 key) (match-string 2 key)))))
 
 (defun mw32cmp-registry-pseudo-parse-data (data)
@@ -301,7 +301,7 @@
     (concat (nreverse list))))
 
 (defun mw32cmp-registry-parse-dword (value)
-  (unless (string-match "^0x\\([0-9a-z]+\\)$" value)
+  (unless (string-match "\\`0x\\([0-9a-z]+\\)\\'" value)
     (signal 'error (list "Not a hex value" value)))
   (let ((hex (match-string 1 value))
         num val)

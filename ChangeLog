@@ -1,3 +1,11 @@
+2014-02-09  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: string-match to beginning/end of string
+
+2014-02-08  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Improve: Display version of working copy when `upgrade'.
+
 2014-02-07  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Add: `fsvn-add-command-location' function to support switching

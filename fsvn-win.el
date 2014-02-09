@@ -212,7 +212,7 @@
         (cygdir (fsvn-cygwin-installed-dir)))
     (and command
          cygdir
-         (string-match (concat "^" (regexp-quote cygdir)) command))))
+         (string-match (concat "\\`" (regexp-quote cygdir)) command))))
 
 (defun fsvn-cygwin-expand-path (name &optional default)
   (let ((inst-dir fsvn-cygwin-installed-dir)
@@ -220,7 +220,7 @@
     (cond
      ((not fsvn-cygwin-guessed-installed)
       expanded)
-     ((string-match (concat "^" (regexp-quote inst-dir)) expanded)
+     ((string-match (concat "\\`" (regexp-quote inst-dir)) expanded)
       (concat "/" (substring expanded (match-end 0))))
      (t
       (let* ((file (expand-file-name name default))
@@ -232,9 +232,9 @@
   (let ((prefix fsvn-cygwin-drive-prefix-dir)
         (installed fsvn-cygwin-installed-folder))
     (cond
-     ((string-match (format "^\\(%s\\)/\\([a-zA-Z]\\)/\\(.*\\)" (regexp-quote prefix)) path)
+     ((string-match (format "\\`\\(%s\\)/\\([a-zA-Z]\\)/\\(.*\\)" (regexp-quote prefix)) path)
       (format "%s:/%s" (match-string 2 path) (match-string 3 path)))
-     ((string-match "^/" path)
+     ((string-match "\\`/" path)
       (format "%s/%s" (expand-file-name installed) (substring path 1)))
      (t
       path))))
@@ -282,7 +282,7 @@
   (let (tree args)
     (setq tree (if arg "/e" "/n"))
     (cond
-     ((or (null file) (string-match "^\\.\\.?$" file))
+     ((or (null file) (string-match "\\`\\.\\.?\\'" file))
       (setq args (list tree (unix-to-dos-filename dir))))
      (t
       (setq args (list tree "/select" (unix-to-dos-filename (expand-file-name file dir))))))

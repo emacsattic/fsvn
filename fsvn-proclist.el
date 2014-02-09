@@ -262,7 +262,7 @@ Keybindings:
           (goto-char prev))))))
 
 (defun fsvn-process-list-default-display-p (process)
-  (string-match "^fsvn" (process-name process)))
+  (string-match "\\`fsvn" (process-name process)))
 
 (defun fsvn-process-list-move-to-command-line ()
   (let ((eol (line-end-position)))

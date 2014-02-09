@@ -659,7 +659,7 @@ If ignore all conflict (DEST-URL subordinate to SRC-URL), use `fsvn-overwrite-im
           (catch 'found
             (mapc
              (lambda (ls-entry)
-               (when (string-match (format "^%s$" orig-name) (fsvn-xml-lists->list->entry=>name$ ls-entry))
+               (when (string-match (format "\\`%s\\'" orig-name) (fsvn-xml-lists->list->entry=>name$ ls-entry))
                  (throw 'found ls-entry)))
              (fsvn-get-ls dir))))
          new-name)
@@ -733,7 +733,7 @@ Argument FILES ."
       (mapc
        (lambda (p)
          (setq prop (process-get p 'fsvn-recursive-status-top-directory))
-         (when (and prop (or (string-match (concat "^" (regexp-quote prop) "/") dirname)
+         (when (and prop (or (string-match (concat "\\`" (regexp-quote prop) "/") dirname)
                              (string= dirname prop)))
            (throw 'yes p)))
        (process-list))

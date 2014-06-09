@@ -377,9 +377,14 @@ value: command")
       (error
        (message "%s" err)
        nil)))
-   ((fsvn-url-local-p default-directory)
-    (let ((ver (fsvn-file-wc-svn-version default-directory)))
-      (fsvn-svn-fetch-proper-version ver)))
+   ((and
+     (fsvn-url-local-p default-directory)
+     (condition-case err
+         (let ((ver (fsvn-file-wc-svn-version default-directory)))
+           (fsvn-svn-fetch-proper-version ver))
+       (error
+        (message "%s" err)
+        nil))))
    (t
     ;; default command
     fsvn-svn-command-internal)))

@@ -1,3 +1,7 @@
+2014-06-09  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: guard if local working copy is not under a svn.
+
 2014-02-09  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: string-match to beginning/end of string

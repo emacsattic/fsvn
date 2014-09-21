@@ -786,7 +786,10 @@ value: command")
 (defun fsvn-file-control-directory (file)
   (cond
    ((version< fsvn-svn-version "1.7.0")
-    (let ((control (fsvn-expand-file (fsvn-meta-dir-name) file)))
+    (let* ((dir (if (fsvn-file-exact-directory-p file)
+                    file
+                  (fsvn-file-name-directory file)))
+           (control (fsvn-expand-file (fsvn-meta-dir-name) dir)))
       (and (fsvn-file-exact-directory-p control)
            control)))
    ((string-match (format "/%s\\($\\|/\\)" (regexp-quote (fsvn-meta-dir-name))) file)

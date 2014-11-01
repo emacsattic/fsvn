@@ -412,6 +412,9 @@ Use %% to put a single % into the output.
        (stringp vc-mode)
        (string-match "\\` SVN" vc-mode)))
 
+(defun fsvn-vc-registered (file)
+  (vc-registered file))
+
 
 
 (defun fsvn-lisp-save (value file)

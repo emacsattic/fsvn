@@ -625,10 +625,14 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
       nil)))
 
 (defun fsvn-redraw-file-fancy-status (file)
-  (let ((buffer (get-file-buffer file)))
-    (when buffer
-      (with-current-buffer buffer
-        (fsvn-ui-fancy-redraw)))))
+  (fsvn-let* ((buf (get-file-buffer file)))
+    (with-current-buffer buf
+      (fsvn-ui-fancy-redraw))))
+
+(defun fsvn-install-file-fancy-status-maybe (file)
+  (fsvn-let* ((buf (get-file-buffer file)))
+    (with-current-buffer buf
+      (fsvn-ui-fancy-install))))
 
 (defun fsvn-open-logview-mode (urlrev directory-p &optional rev-range count)
   "Open URLREV log buffer.

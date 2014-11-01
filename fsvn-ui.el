@@ -793,7 +793,7 @@ Elements of the alist are:
 ;;
 
 (defvar fsvn-ui-fancy-modeline t) ; modeline mark display or not
-(defvar fsvn-ui-fancy-tooltip nil) ; modeline tooltip display
+(defvar fsvn-ui-fancy--tooltip nil) ; modeline tooltip display
 (defvar fsvn-ui-image-directory
   (condition-case nil
       (let ((validator (lambda (file) (and (eq (car (file-attributes file)) t) file))))
@@ -809,16 +809,16 @@ Elements of the alist are:
   :type 'boolean
   :group 'fsvn)
 
-(defvar fsvn-ui-fancy-object-picture-alist nil)
+(defvar fsvn-ui-fancy--object-picture-alist nil)
 
-(defun fsvn-ui-fancy-object-picture (color)
-  (let ((cell (assoc color fsvn-ui-fancy-object-picture-alist)))
+(defun fsvn-ui-fancy--object-picture (color)
+  (let ((cell (assoc color fsvn-ui-fancy--object-picture-alist)))
     (cond
      (cell (cdr cell))
      (t
       (setq cell (cons color nil))
-      (setq fsvn-ui-fancy-object-picture-alist
-            (cons cell fsvn-ui-fancy-object-picture-alist))
+      (setq fsvn-ui-fancy--object-picture-alist
+            (cons cell fsvn-ui-fancy--object-picture-alist))
       (when fsvn-ui-image-directory
         (let ((file (expand-file-name (concat color ".xpm") fsvn-ui-image-directory)))
           (when (file-exists-p file)
@@ -827,8 +827,8 @@ Elements of the alist are:
               (setcdr cell (buffer-string))))))
       (cdr cell)))))
 
-(defun fsvn-ui-fancy-get-picture (color)
-  (or (fsvn-ui-fancy-object-picture color)
+(defun fsvn-ui-fancy--get-picture (color)
+  (or (fsvn-ui-fancy--object-picture color)
       (format "/* XPM */
 static char * data[] = {
 \"18 13 3 1\",
@@ -850,23 +850,23 @@ static char * data[] = {
 \"                  \"};"
               color)))
 
-(defun fsvn-ui-fancy-modeline-picture (color)
+(defun fsvn-ui-fancy--modeline-picture (color)
   (propertize "    "
-              'help-echo 'fsvn-ui-fancy-tooltip
+              'help-echo 'fsvn-ui-fancy--tooltip
               'display
               `(image :type xpm
-                      :data ,(fsvn-ui-fancy-get-picture color)
+                      :data ,(fsvn-ui-fancy--get-picture color)
                       :ascent center)))
 
-(defun fsvn-ui-fancy-install-state-mark (color)
+(defun fsvn-ui-fancy--install-state-mark (color)
   (add-hook 'after-revert-hook 'fsvn-ui-fancy-redraw nil t)
   (let ((mode `(fsvn-ui-fancy-modeline
-                ,(fsvn-ui-fancy-modeline-picture color))))
+                ,(fsvn-ui-fancy--modeline-picture color))))
     (unless (assq 'fsvn-ui-fancy-modeline mode-line-format)
       (setq mode-line-format (cons mode mode-line-format)))
     (force-mode-line-update t)))
 
-(defun fsvn-ui-fancy-uninstall-state-mark ()
+(defun fsvn-ui-fancy--uninstall-state-mark ()
   (remove-hook 'after-revert-hook 'fsvn-ui-fancy-redraw t)
   (when (listp mode-line-format)
     (setq mode-line-format
@@ -874,49 +874,33 @@ static char * data[] = {
                            mode-line-format)))
   (force-mode-line-update t))
 
-(defun fsvn-ui-fancy-update-state-mark-tooltip (tooltip)
-  (setq fsvn-ui-fancy-tooltip tooltip))
+(defun fsvn-ui-fancy--update-state-mark-tooltip (tooltip)
+  (setq fsvn-ui-fancy--tooltip tooltip))
 
-(defun fsvn-ui-fancy-update-state-mark (color)
-  (fsvn-ui-fancy-uninstall-state-mark)
-  (fsvn-ui-fancy-install-state-mark color))
+(defun fsvn-ui-fancy--update-state-mark (status)
+  (let ((color (fsvn-ui-fancy--interpret-state-mode-color status))
+        (mode (assq 'fsvn-ui-fancy-modeline mode-line-format)))
+    (cond
+     ((null mode)
+      (fsvn-ui-fancy--install-state-mark color))
+     (t
+      (setcar (cdr mode) (fsvn-ui-fancy--modeline-picture color))))))
 
-(defun fsvn-ui-fancy-redraw ()
-  (if (and fsvn-ui-fancy-file-state-in-modeline
-           (fsvn-vc-mode-p))
-      (fsvn-ui-fancy-update-modeline)
-    (fsvn-ui-fancy-uninstall-state-mark)))
-
-(defadvice vc-find-file-hook (after fsvn-ui-fancy-vc-find-file-hook disable)
-  "vc-find-file-hook advice for synchronizing psvn with vc-svn interface"
-  (fsvn-ui-fancy-redraw))
-
-(defadvice vc-after-save (after fsvn-ui-fancy-vc-after-save disable)
-  "vc-after-save advice for synchronizing psvn when saving buffer"
-  (fsvn-ui-fancy-redraw))
-
-(defadvice ediff-refresh-mode-lines
-  (around fsvn-ui-fancy-ediff-modeline-fixup disable compile)
-  "Fixup svn file status in the modeline when using ediff"
-  (ediff-with-current-buffer ediff-buffer-A
-    (fsvn-ui-fancy-uninstall-state-mark))
-  (ediff-with-current-buffer ediff-buffer-B
-    (fsvn-ui-fancy-uninstall-state-mark))
-  ad-do-it
-  (ediff-with-current-buffer ediff-buffer-A
-    (fsvn-ui-fancy-update-modeline))
-  (ediff-with-current-buffer ediff-buffer-B
-    (fsvn-ui-fancy-update-modeline)))
-
-(defun fsvn-ui-fancy-update-modeline ()
+(defun fsvn-ui-fancy--update-modeline ()
   "Update modeline state dot mark properly"
-  (when (and buffer-file-name (fsvn-vc-mode-p))
-    (fsvn-ui-fancy-update-state-mark
-     (fsvn-ui-fancy-interpret-state-mode-color
-      (let ((status (fsvn-get-file-status buffer-file-name)))
-        (fsvn-xml-status->target->entry=>wc-status.item status))))))
+  (fsvn-let*
+      ((buffer-file-name)
+       ((fsvn-vc-mode-p))
+       (status (fsvn-ui-fancy--get-status buffer-file-name)))
+    (fsvn-ui-fancy--update-state-mark status)))
 
-(defun fsvn-ui-fancy-interpret-state-mode-color (val)
+(defun fsvn-ui-fancy--get-status (file)
+  (fsvn-let*
+      ((status (fsvn-get-file-status file))
+       (val (fsvn-xml-status->target->entry=>wc-status.item status)))
+    val))
+
+(defun fsvn-ui-fancy--interpret-state-mode-color (val)
   "Interpret vc-svn-state symbol to mode line color"
   (cond
    ((memq val '(deleted))
@@ -932,6 +916,44 @@ static char * data[] = {
     "violet")
    (t
     "GreenYellow")))
+
+(defadvice vc-find-file-hook (after fsvn-ui-fancy-vc-find-file-hook disable)
+  "vc-find-file-hook advice for synchronizing psvn with vc-svn interface"
+  (fsvn-ui-fancy-redraw))
+
+(defadvice vc-after-save (after fsvn-ui-fancy-vc-after-save disable)
+  "vc-after-save advice for synchronizing psvn when saving buffer"
+  (fsvn-ui-fancy-redraw))
+
+(defadvice ediff-refresh-mode-lines
+  (around fsvn-ui-fancy-ediff-modeline-fixup disable compile)
+  "Fixup svn file status in the modeline when using ediff"
+  (ediff-with-current-buffer ediff-buffer-A
+    (fsvn-ui-fancy--uninstall-state-mark))
+  (ediff-with-current-buffer ediff-buffer-B
+    (fsvn-ui-fancy--uninstall-state-mark))
+  ad-do-it
+  (ediff-with-current-buffer ediff-buffer-A
+    (fsvn-ui-fancy--update-modeline))
+  (ediff-with-current-buffer ediff-buffer-B
+    (fsvn-ui-fancy--update-modeline)))
+
+(defun fsvn-ui-fancy-redraw ()
+  (cond
+   ((and fsvn-ui-fancy-file-state-in-modeline
+         (fsvn-vc-mode-p))
+    (fsvn-ui-fancy--update-modeline))
+   (t
+    (fsvn-ui-fancy--uninstall-state-mark))))
+
+(defun fsvn-ui-fancy-install ()
+  (fsvn-let*
+      ((file buffer-file-name)
+       (status (fsvn-ui-fancy--get-status file))
+       (color (fsvn-ui-fancy--interpret-state-mode-color status)))
+    ;; fancy mode line depend on vc
+    (fsvn-vc-registered file)
+    (fsvn-ui-fancy--install-state-mark color)))
 
 
 

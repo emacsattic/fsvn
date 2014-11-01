@@ -1,3 +1,17 @@
+2014-10-30  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: Register to vc-mode
+
+2014-10-18  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Refactor: cleanup (fancy modeline)
+
+	* Refactor: rename function `fsvn-install-file-fancy-status-maybe'
+
+2014-10-16  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Refactor Improve: fancy mode line
+
 2014-09-12  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: before 1.7, handle meta directory.

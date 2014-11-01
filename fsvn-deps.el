@@ -975,18 +975,22 @@ value: command")
 (defun fsvn-parse-result-cmd-delete (buffer &optional min)
   (fsvn-parse-result-modify-cmd-wrapper-internal
    (format "^%c[ \t]+\\([^ \t].+\\)$" ?D)
-   buffer min (lambda (f) (fsvn-browse-put-status-1 f ?D))))
+   buffer min (lambda (f)
+                (fsvn-browse-put-status-1 f ?D)
+                (fsvn-redraw-file-fancy-status f))))
 
 (defun fsvn-parse-result-cmd-add (buffer &optional min)
   (let (files info)
     (setq files
           (fsvn-parse-result-modify-cmd-wrapper-internal
            (format "^%c\\(?:[ \t]+(bin)[ \t]+\\|[ \t]+\\)\\([^ \t].+\\)$" ?A)
-           buffer min (lambda (f) (fsvn-browse-put-status-1 f ?A))))
+           buffer min (lambda (f)
+                        (fsvn-browse-put-status-1 f ?A)
+                        (fsvn-install-file-fancy-status-maybe f))))
     (when (> (length files) 0)
       (setq info (fsvn-get-info-entry (car files)))
       (when (fsvn-config-tortoise-property-use (fsvn-xml-info->entry=>repository=>root$ info))
-        ;; todo asynchronous
+        ;; FIXME TODO asynchronous
         (fsvn-tortoise-tsvn:autoprops-set files buffer)))
     files))
 
@@ -1055,7 +1059,7 @@ value: command")
 (defun fsvn-parse-result-cmd-commit-added (file)
   (fsvn-save-browse-file-excursion file
     (fsvn-browse-draw-status-this-line))
-  (fsvn-redraw-file-fancy-status file))
+  (fsvn-install-file-fancy-status-maybe file))
 
 (defconst fsvn-parse-result-cmd-commit-behavior-alist
   '(
@@ -1169,8 +1173,6 @@ Huge value makes Emacs slow down."
     (when (and buffer (not (buffer-modified-p buffer)))
       (with-current-buffer buffer
         (revert-buffer nil t)))))
-
-
 
 
 

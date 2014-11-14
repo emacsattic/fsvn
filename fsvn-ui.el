@@ -948,7 +948,8 @@ static char * data[] = {
 
 (defun fsvn-ui-fancy-install ()
   (fsvn-let*
-      ((file buffer-file-name)
+      ((fsvn-ui-fancy-file-state-in-modeline)
+       (file buffer-file-name)
        (status (fsvn-ui-fancy--get-status file))
        (color (fsvn-ui-fancy--interpret-state-mode-color status)))
     ;; fancy mode line depend on vc

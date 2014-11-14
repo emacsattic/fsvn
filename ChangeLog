@@ -1,3 +1,11 @@
+2014-11-14  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: Creating log chain problem.
+
+2014-11-02  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: Explicitly vc-mode on
+
 2014-10-30  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: Register to vc-mode

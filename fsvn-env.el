@@ -413,6 +413,7 @@ Use %% to put a single % into the output.
        (string-match "\\` SVN" vc-mode)))
 
 (defun fsvn-vc-registered (file)
+  (vc-mode-line file)
   (vc-registered file))
 
 

@@ -205,8 +205,7 @@ This list sorted revision descending.
      (lambda (logentry)
        (setq rev (fsvn-xml-log->logentry.revision logentry))
        (catch 'done
-         (let ((target current)
-               next)
+         (let ((target current))
            (mapc
             (lambda (path)
               (unless (string= (fsvn-xml-log->logentry->path.copyfrom-path path) "")
@@ -221,10 +220,11 @@ This list sorted revision descending.
                    ((string-match (concat "\\`" (regexp-quote logpath) "/") target)
                     ;; match to ancestor of the target
                     ;; may exact match to target
-                    (setq next (fsvn-expand-url (substring target (match-end 0)) copyfrom)))))))
-            (fsvn-xml-log->logentry->paths logentry))
-           (when next
-             (setq ret (cons (cons rev next) ret))))))
+                    (let ((old-fn (substring target (match-end 0))))
+                      (setq current (fsvn-expand-url old-fn copyfrom)))
+                    (setq ret (cons (cons rev current) ret))
+                    (throw 'done t))))))
+            (fsvn-xml-log->logentry->paths logentry)))))
      log-entries)
     (nreverse ret)))
 

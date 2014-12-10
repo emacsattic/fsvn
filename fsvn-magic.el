@@ -32,8 +32,15 @@
 (defconst fsvn-magic-file-name-regexp
   (let ((top "\\`/fsvn")
         tmp)
-    (concat top "@" "\\(" "HEAD" "\\|" "[0-9]+" "\\|"
-            fsvn-revision-date-regexp "\\)" "/")))
+    (concat top "@"
+            "\\("
+            "HEAD"
+            "\\|"
+            "[0-9]+"
+            "\\|"
+            fsvn-revision-date-regexp
+            "\\)"
+            "/")))
 
 (defconst fsvn-magic-handler-alist
   '(

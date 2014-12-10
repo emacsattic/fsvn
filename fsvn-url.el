@@ -20,7 +20,13 @@
 
 
 (defconst fsvn-url-encoding fsvn-svn-common-coding-system)
-(defconst fsvn-url-with-revision-regexp "\\`\\(.*\\)@\\([^/@]*\\)\\(@*\\)\\'")
+(defconst fsvn-url-with-revision-regexp
+  (concat
+   "\\`"
+   "\\(.*\\)@"
+   "\\(" "[^/@]*" "\\)"
+   "\\(@*\\)"
+   "\\'"))
 
 ;; url utility
 

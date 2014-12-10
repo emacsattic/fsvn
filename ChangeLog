@@ -1,3 +1,8 @@
+2014-12-10  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: Work around for peg (revisioned) filename.
+	    Maybe this is bug of subversion.
+
 2014-11-14  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: Creating log chain problem.

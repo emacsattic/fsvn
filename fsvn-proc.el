@@ -337,7 +337,7 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
                (when (setq cs (fsvn-config-repository-default-coding-system url))
                  (throw 'guessed cs)))
               ((fsvn-url-local-p url)
-               (unless (file-directory-p url)
+               (when (fsvn-file-exact-file-p url)
                  (when (setq cs (fsvn-file-guessed-coding-system url))
                    (throw 'guessed cs)))))))
           ((string-match "\\`--[a-zA-Z]" arg)
@@ -345,7 +345,7 @@ Like `let' binding, varlist bound while executing BODY. (sentinel and filter too
           ((not (fsvn-url-local-p arg)))
           (t
            (let ((file (fsvn-magic-create-name arg)))
-             (unless (file-directory-p file)
+             (when (fsvn-file-exact-file-p file)
                (throw 'guessed (fsvn-file-guessed-coding-system file)))))))
        flatten-args)
       (default-value 'buffer-file-coding-system))))

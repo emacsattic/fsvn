@@ -351,7 +351,7 @@ value: command")
 
 (defun fsvn-svn-proper-command (&optional flat-args)
   (cond
-   ((member (car-safe flat-args) '("upgrade"))
+   ((member (car-safe flat-args) '("upgrade" "export"))
     fsvn-svn-command-internal)
    ((condition-case err
         (fsvn-let*

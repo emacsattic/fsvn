@@ -1,3 +1,9 @@
+2015-01-28  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Add: copy revisioned url when sibling buffer.
+
+	* Fix: Do not check svn proper command when export
+
 2014-12-10  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: Work around for peg (revisioned) filename.

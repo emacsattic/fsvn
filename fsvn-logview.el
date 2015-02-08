@@ -501,9 +501,9 @@ from is marked point, to is current point."
   (setq fsvn-default-window-configuration (current-window-configuration)))
 
 (defun fsvn-log-list-revision-path (root path rev)
-  (let ((found (fsvn-log-list-find-path rev path)))
-    ;; todo found is path. currently this is works
-    (fsvn-url-urlrev (fsvn-expand-url (fsvn-urlrev-url found) root) rev)))
+  (let* ((path (fsvn-log-list-find-path rev path))
+         (url (fsvn-expand-url path root)))
+    (fsvn-url-urlrev url rev)))
 
 (defun fsvn-log-list-repository-url ()
   (fsvn-expand-url fsvn-log-list-target-path (fsvn-buffer-repos-root)))
@@ -1014,6 +1014,7 @@ LOCAL-FILE can be any file in local file system.
           (define-key map "l" 'fsvn-log-sibling-log-this)
           (define-key map "n" 'fsvn-log-sibling-next-line)
           (define-key map "p" 'fsvn-log-sibling-previous-line)
+          (define-key map "w" 'fsvn-log-sibling-copy-urlrev)
           (define-key map "zl" 'fsvn-log-sibling-log-this)
           (define-key map "zp" 'fsvn-log-sibling-propview-this)
 
@@ -1068,7 +1069,9 @@ Keybindings:
   (setq buffer-undo-list t)
   (fsvn-make-buffer-variables fsvn-log-sibling-buffer-local-variables)
   (remove-overlays (point-min) (point-max))
-  (add-hook 'post-command-hook 'fsvn-log-sibling-show-details nil t)
+  ;; FIXME TODO: currently show-details is working when moving line,
+  ;;   but move from other buffer
+  ;; (add-hook 'post-command-hook 'fsvn-log-sibling-show-details nil t)
   (run-mode-hooks 'fsvn-log-sibling-mode-hook))
 
 (defmacro fsvn-log-sibling-only-file (&rest form)
@@ -1225,12 +1228,11 @@ Keybindings:
 (defun fsvn-log-sibling-show-details ()
   (let ((entry (fsvn-log-sibling-point-entry))
         (message-log-max))
-    (if (and entry
-             (not (string= (fsvn-xml-log->logentry->path.copyfrom-path entry) "")))
-        (message "Copy from %s@%s"
-                 (fsvn-xml-log->logentry->path.copyfrom-path entry)
-                 (fsvn-xml-log->logentry->paths->path.copyfrom-rev entry))
-      (message nil))))
+    (when (and entry
+               (not (string= (fsvn-xml-log->logentry->path.copyfrom-path entry) "")))
+      (message "Copy from %s@%s"
+               (fsvn-xml-log->logentry->path.copyfrom-path entry)
+               (fsvn-xml-log->logentry->paths->path.copyfrom-rev entry)))))
 
 (defun fsvn-log-sibling-cmd-read-copy-file ()
   (let ((from (fsvn-log-sibling-point-urlrev))
@@ -1294,12 +1296,14 @@ Keybindings:
 (defun fsvn-log-sibling-next-line (&optional arg)
   "Move to next line."
   (interactive "p")
-  (forward-line arg))
+  (forward-line arg)
+  (fsvn-log-sibling-show-details))
 
 (defun fsvn-log-sibling-previous-line (&optional arg)
   "Move to previous line."
   (interactive "p")
-  (forward-line (- arg)))
+  (forward-line (- arg))
+  (fsvn-log-sibling-show-details))
 
 (defun fsvn-log-sibling-log-this (urlrev)
   "Open file log by `fsvn-log-list-mode'."
@@ -1335,6 +1339,13 @@ Keybindings:
   "Open guessed working copy file's directory."
   (interactive (fsvn-log-sibling-cmd-read-this-local-file))
   (fsvn-working-copy (file-name-directory filename)))
+
+(defun fsvn-log-sibling-copy-urlrev ()
+  "Copy url at point."
+  (interactive)
+  (let ((urlrev (fsvn-log-sibling-cmd-this-urlrev)))
+    (kill-new urlrev)
+    (message urlrev)))
 
 (defun fsvn-log-sibling-copy-this (src-urlrev dest-file &optional args)
   "Execute `copy' from SRC-URLREV to DEST-FILE.
@@ -1605,7 +1616,8 @@ Keybindings:
      ["Ediff Previous" fsvn-log-sibling-ediff-previous t]
      )
     ("Other"
-     ["" fsvn-log-sibling-copy-this t]
+     ["Copy" fsvn-log-sibling-copy-this t]
+     ["Copy Filename" fsvn-log-sibling-copy-urlrev t]
      )
     ))
 

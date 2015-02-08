@@ -405,10 +405,9 @@ Keybindings:
     (insert event)))
 
 (defun fsvn-browse-ls-insert-wc-directory (directory)
-  (let* (file-entries status-entries status-entry entries)
-    (setq file-entries (fsvn-browse-ls-directory-files directory))
-    (setq status-entries (fsvn-get-directory-files-status directory))
-    (setq entries (fsvn-browse-ls-merge-wc-entries directory file-entries status-entries))
+  (let* ((file-entries (fsvn-browse-ls-directory-files directory))
+         (status-entries (fsvn-get-directory-files-status directory))
+         (entries (fsvn-browse-ls-merge-wc-entries directory file-entries status-entries)))
     (fsvn-browse-draw-path directory)
     (mapc
      (lambda (entry)
@@ -416,26 +415,27 @@ Keybindings:
      entries)))
 
 (defun fsvn-browse-ls-merge-wc-entries (directory file-entries status-entries)
-  (let (status-hash key ret status path)
-    ;; create hash for a lot of files.
-    ;;   3000 files 82sec -> 13sec.
-    (setq status-hash (make-hash-table :test 'equal))
+  (let (;; create hash for a lot of files.
+        ;;   3000 files 82sec -> 13sec.
+        (status-hash (make-hash-table :test 'equal))
+        ret)
     (mapc
      (lambda (status-entry)
-       (setq key (fsvn-file-absolute-name (fsvn-xml-status->target->entry.path status-entry)))
-       (puthash key status-entry status-hash))
+       (let* ((path (fsvn-xml-status->target->entry.path status-entry))
+              (key (fsvn-file-absolute-name path)))
+         (puthash key status-entry status-hash)))
      status-entries)
     (mapc
      (lambda (file)
-       (setq key (fsvn-file-absolute-name file))
-       (setq status (gethash key status-hash))
-       (setq ret (cons (cons file status) ret)))
+       (let* ((key (fsvn-file-absolute-name file))
+              (status (gethash key status-hash)))
+         (setq ret (cons (cons file status) ret))))
      file-entries)
     (mapc
      (lambda (status-entry)
-       (setq path (fsvn-xml-status->target->entry.path status-entry))
-       (unless (or (fsvn-file= path directory) (fsvn-file-assoc path ret))
-         (setq ret (cons (cons path status-entry) ret))))
+       (let ((path (fsvn-xml-status->target->entry.path status-entry)))
+         (unless (or (fsvn-file= path directory) (fsvn-file-assoc path ret))
+           (setq ret (cons (cons path status-entry) ret)))))
      status-entries)
     (sort ret fsvn-browse-ls-comparer)))
 

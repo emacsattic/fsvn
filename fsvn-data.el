@@ -205,7 +205,8 @@ This list sorted revision descending.
      (lambda (logentry)
        (setq rev (fsvn-xml-log->logentry.revision logentry))
        (catch 'done
-         (let ((target current))
+         (let ((target current)
+               maxlen paren-match)
            (mapc
             (lambda (path)
               (unless (string= (fsvn-xml-log->logentry->path.copyfrom-path path) "")
@@ -217,14 +218,19 @@ This list sorted revision descending.
                     (setq current copyfrom)
                     (setq ret (cons (cons rev copyfrom) ret))
                     (throw 'done t))
-                   ((string-match (concat "\\`" (regexp-quote logpath) "/") target)
+                   ((and (string-match (concat "\\`" (regexp-quote logpath) "/") target)
+                         ;; search longest match
+                         ;; /a/b/c/hoge.txt -> /a/B/C/hoge.txt
+                         (or (null maxlen) (< maxlen (match-end 0))))
+                    (setq maxlen (match-end 0))
                     ;; match to ancestor of the target
                     ;; may exact match to target
                     (let ((old-fn (substring target (match-end 0))))
                       (setq current (fsvn-expand-url old-fn copyfrom)))
-                    (setq ret (cons (cons rev current) ret))
-                    (throw 'done t))))))
-            (fsvn-xml-log->logentry->paths logentry)))))
+                    (setq paren-match (cons rev current)))))))
+            (fsvn-xml-log->logentry->paths logentry))
+           (when paren-match
+             (setq ret (cons paren-match ret))))))
      log-entries)
     (nreverse ret)))
 

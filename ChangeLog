@@ -1,3 +1,7 @@
+2015-02-22  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: searching log chain problem. Rename parent directory cause error.
+
 2015-01-28  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Add: copy revisioned url when sibling buffer.

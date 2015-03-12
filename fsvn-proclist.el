@@ -127,6 +127,11 @@ Keybindings:
 (defun fsvn-process-list-get-buffer ()
   (get-buffer-create fsvn-process-list-buffer-name))
 
+(defun fsvn-process-list-display-process-p (proc)
+  (or (eq fsvn-process-list-display-p-function t)
+      (and fsvn-process-list-display-p-function
+           (funcall fsvn-process-list-display-p-function proc))))
+
 (defun fsvn-process-list-point-process ()
   (catch 'found
     (mapc
@@ -177,9 +182,7 @@ Keybindings:
           (fsvn-header-tail-fill-line))
         (mapc
          (lambda (p)
-           (when (or (eq fsvn-process-list-display-p-function t)
-                     (and fsvn-process-list-display-p-function
-                          (funcall fsvn-process-list-display-p-function p)))
+           (when (fsvn-process-list-display-process-p p)
              (fsvn-process-list-insert-process p)
              (setq processes (cons p processes))))
          (fsvn-union (process-list) fsvn-process-list-processes 'memq)))
@@ -251,7 +254,7 @@ Keybindings:
 
                          (replace-match (format "%s %s" sizestr status) nil nil nil 1)
                          (goto-char prev)))))
-                  ((funcall fsvn-process-list-display-p-function p)
+                  ((fsvn-process-list-display-process-p p)
                    (goto-char (point-max))
                    (let (buffer-read-only)
                      (fsvn-process-list-insert-process p)

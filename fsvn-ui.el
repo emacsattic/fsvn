@@ -891,7 +891,8 @@ static char * data[] = {
   (fsvn-let*
       ((buffer-file-name)
        ((fsvn-current-buffer-unver-version-p))
-       (status (or status (fsvn-ui-fancy--get-status buffer-file-name))))
+       (status (or status (fsvn-ui-fancy--get-status buffer-file-name)))
+       ((not (memq status '(ignored)))))
     (fsvn-ui-fancy--update-state-mark status)))
 
 (defun fsvn-ui-fancy--get-status (file)

@@ -1,3 +1,7 @@
+2015-07-01  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: fancy icon misunderstand ignored status.
+
 2015-03-18  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: removing some vc advices.

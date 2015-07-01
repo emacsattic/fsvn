@@ -40,8 +40,6 @@
     (dired-goto-file around fsvn-dired-goto-file-ad)
     (dired-get-filename around fsvn-dired-get-filename-ad)
     (after-find-file around fsvn-after-find-file)
-    (vc-find-file-hook after fsvn-ui-fancy-vc-find-file-hook)
-    (vc-after-save after fsvn-ui-fancy-vc-after-save)
     (ediff-refresh-mode-lines around fsvn-ui-fancy-ediff-modeline-fixup)
     ))
 
@@ -389,6 +387,8 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
       ;; redraw mode-line `kill-all-local-varable' destroy after `vc-find-file'
       ;; advice
       (add-hook 'after-change-major-mode-hook 'fsvn-ui-fancy-redraw)
+      (add-hook 'find-file-hook 'fsvn-ui-fancy-redraw)
+      (add-hook 'after-save-hook 'fsvn-ui-fancy-redraw)
       ;; iswitchb ignore buffers
       (eval-after-load 'iswitchb
         `(let ((ignore-var (if iswitchb-buffer-ignore
@@ -406,6 +406,8 @@ Optional ARGS (with \\[universal-argument]) means read svn subcommand arguments.
       (setq file-name-handler-alist (delq file-handler file-name-handler-alist))
       (remove-hook 'pre-command-hook 'fsvn-magic-clear-cache-if-toplevel)
       (remove-hook 'after-change-major-mode-hook 'fsvn-ui-fancy-redraw)
+      (remove-hook 'find-file-hook 'fsvn-ui-fancy-redraw)
+      (remove-hook 'after-save-hook 'fsvn-ui-fancy-redraw)
       (when (boundp 'iswitchb-buffer-ignore-orig)
         (mapc
          (lambda (regexp)

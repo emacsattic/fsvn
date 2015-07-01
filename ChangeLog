@@ -1,3 +1,7 @@
+2015-03-18  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
+
+	* Fix: removing some vc advices.
+
 2015-03-10  Masahiro Hayashi (林 雅博)  <mhayashi1120@gmail.com>
 
 	* Fix: Check fsvn-process-list-display-p-function is function

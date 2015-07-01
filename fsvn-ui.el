@@ -886,12 +886,12 @@ static char * data[] = {
      (t
       (setcar (cdr mode) (fsvn-ui-fancy--modeline-picture color))))))
 
-(defun fsvn-ui-fancy--update-modeline ()
+(defun fsvn-ui-fancy--update-modeline (&optional status)
   "Update modeline state dot mark properly"
   (fsvn-let*
       ((buffer-file-name)
-       ((fsvn-vc-mode-p))
-       (status (fsvn-ui-fancy--get-status buffer-file-name)))
+       ((fsvn-current-buffer-unver-version-p))
+       (status (or status (fsvn-ui-fancy--get-status buffer-file-name))))
     (fsvn-ui-fancy--update-state-mark status)))
 
 (defun fsvn-ui-fancy--get-status (file)
@@ -899,6 +899,9 @@ static char * data[] = {
       ((status (fsvn-get-file-status file))
        (val (fsvn-xml-status->target->entry=>wc-status.item status)))
     val))
+
+(defun fsvn-ui-fancy--color-exists-p (status)
+  (not (memq status '(unversioned))))
 
 (defun fsvn-ui-fancy--interpret-state-mode-color (val)
   "Interpret vc-svn-state symbol to mode line color"
@@ -917,14 +920,6 @@ static char * data[] = {
    (t
     "GreenYellow")))
 
-(defadvice vc-find-file-hook (after fsvn-ui-fancy-vc-find-file-hook disable)
-  "vc-find-file-hook advice for synchronizing psvn with vc-svn interface"
-  (fsvn-ui-fancy-redraw))
-
-(defadvice vc-after-save (after fsvn-ui-fancy-vc-after-save disable)
-  "vc-after-save advice for synchronizing psvn when saving buffer"
-  (fsvn-ui-fancy-redraw))
-
 (defadvice ediff-refresh-mode-lines
   (around fsvn-ui-fancy-ediff-modeline-fixup disable compile)
   "Fixup svn file status in the modeline when using ediff"
@@ -939,21 +934,24 @@ static char * data[] = {
     (fsvn-ui-fancy--update-modeline)))
 
 (defun fsvn-ui-fancy-redraw ()
-  (cond
-   ((and fsvn-ui-fancy-file-state-in-modeline
-         (fsvn-vc-mode-p))
-    (fsvn-ui-fancy--update-modeline))
-   (t
-    (fsvn-ui-fancy--uninstall-state-mark))))
+  (let (status)
+    (cond
+     ((and fsvn-ui-fancy-file-state-in-modeline
+           buffer-file-name
+           (fsvn-current-buffer-unver-version-p)
+           (setq status (fsvn-ui-fancy--get-status buffer-file-name))
+           (fsvn-ui-fancy--color-exists-p status))
+      (fsvn-ui-fancy--update-modeline status))
+     (t
+      (fsvn-ui-fancy--uninstall-state-mark)))))
 
 (defun fsvn-ui-fancy-install ()
   (fsvn-let*
       ((fsvn-ui-fancy-file-state-in-modeline)
        (file buffer-file-name)
        (status (fsvn-ui-fancy--get-status file))
+       ((fsvn-ui-fancy--color-exists-p status))
        (color (fsvn-ui-fancy--interpret-state-mode-color status)))
-    ;; fancy mode line depend on vc
-    (fsvn-vc-registered file)
     (fsvn-ui-fancy--install-state-mark color)))
 
 

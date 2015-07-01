@@ -3,7 +3,7 @@
 
 ;; Author: Masahiro Hayashi <mhayashi1120@gmail.com>
 ;; URL: http://fsvn.sourceforge.jp/
-;; Keywords: vc
+;; Keywords: application
 ;; Version: 0.9.13
 
 ;; fsvn.el is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@
 ;;  Have following advantages of other Emacs svn client.
 ;;  * tsvn:*, bugtraq:* like property supported. (or will be supported)
 ;;  * Using `svn help' output for completing read.
-;;  * Fast in huge working copy by background process.
+;;  * Fast in huge working copy by background (asynchronous) process.
 ;;  * Has repository browser.
 ;;  * Has visualize blame/annotate/praise minor-mode.
 ;;  * Has svk support
@@ -43,8 +43,8 @@
 
 ;; This package is tested on following environment.
 ;;      NTEmacs (based Emacs 23.3) on Windows.  svn 1.6.x - 1.7.x
-;;      Emacs (24.3) on GNU/Linux (Debian).  svn svn 1.6.x - 1.7.x
-;;      Emacs current (24.3.50) on GNU/Linux (Debian).  svn 1.6.x - 1.7.x
+;;      Emacs (24.4) on GNU/Linux (Debian).  svn svn 1.6.x - 1.8.x
+;;      Emacs current (25.0.50) on GNU/Linux (Debian).  svn 1.6.x - 1.8.x
 
 ;;; Code:
 

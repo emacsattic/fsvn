@@ -405,17 +405,9 @@ Use %% to put a single % into the output.
 
 
 
-(defun fsvn-vc-mode-p ()
-  "Is vc-svn active?"
-  (defvar vc-mode)
-  (and (boundp 'vc-mode)
-       (stringp vc-mode)
-       (string-match "\\` SVN" vc-mode)))
-
-(defun fsvn-vc-registered (file)
-  (vc-mode-line file)
-  (vc-registered file))
-
+(defun fsvn-current-buffer-unver-version-p ()
+  (and default-directory
+       (fsvn-directory-under-versioned-p default-directory)))
 
 
 (defun fsvn-lisp-save (value file)
